@@ -5,12 +5,12 @@
 TEMPLATE = app
 TARGET = 
 DEPENDPATH += . src
-INCLUDEPATH += .
+INCLUDEPATH += . /usr/local/cuda/include/
 CONFIG -= qt
 CONFIG += debug
 CFLAGS += -Wall -Wextra
 CXXFLAGS += -Wall -Wextra
-unix:LIBS += -lsfml-graphics -lsfml-audio -lsfml-window -lsfml-system -lGLU
+unix:LIBS += -lsfml-graphics -lsfml-audio -lsfml-window -lsfml-system -lGLU -L/usr/lib/nvidia-current -lOpenCL
 
 OBJECTS_DIR = obj
 
