@@ -9,7 +9,7 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 	m_kernelPath = kernel_path;
 	m_kernelName = kernel_name;
 	
-	fprintf(stdout, "Compiling %s...\n", m_kernelName);
+	fprintf(stdout, "Compiling %s...\n", m_kernelPath);
 	
 	if(m_deviceType == CL_DEVICE_TYPE_GPU)
 	{
@@ -62,7 +62,7 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 	m_kernelSource = readFile(m_kernelPath);
 	if(!m_kernelSource)
 	{
-		fprintf(stderr, "Error: Failed to read m_kernel file %s!\n", m_kernelPath);
+		fprintf(stderr, "Error: Failed to read kernel file %s!\n", m_kernelPath);
 		exit(EXIT_FAILURE);
 	}
 	
@@ -70,7 +70,7 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 	m_program = clCreateProgramWithSource(m_ctx, 1, &m_kernelSource, NULL, &err);
 	if(!m_program)
 	{
-		fprintf(stderr, "Error: Failed to create m_program!\n");
+		fprintf(stderr, "Error: Failed to create program!\n");
 		exit(EXIT_FAILURE);
 	}
 	
@@ -78,7 +78,7 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 	err = clBuildProgram(m_program, 0, NULL, NULL, NULL, NULL);
 	if(err != CL_SUCCESS)
 	{
-		fprintf(stderr, "Error: Failed to compile m_program %s\n", m_kernelName);
+		fprintf(stderr, "Error: Failed to compile program %s\n", m_kernelPath);
 		size_t len;
 		char buffer[2048];
 		clGetProgramBuildInfo(m_program, m_devid, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
@@ -90,7 +90,7 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 	m_kernel = clCreateKernel(m_program, m_kernelName, &err);
 	if(!m_kernel || err != CL_SUCCESS)
 	{
-		fprintf(stderr, "Error: Failed to create m_kernel!\n");
+		fprintf(stderr, "Error: Failed to create kernel!\n");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -173,7 +173,6 @@ int OCLKernel::run(float* data, unsigned int data_count, float* results, unsigne
 	clReleaseMemObject(m_input);
 	clReleaseMemObject(m_output);
 	
-	printf("Finished executing %s\n", m_kernelName);
 	return EXIT_SUCCESS;
 }
 
