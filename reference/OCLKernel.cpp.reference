@@ -1,18 +1,7 @@
 #include "OCLKernel.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include "Util.h"
-
-#define GLOBAL_WIDTH 512
-#define GLOBAL_HEIGHT 1
-
-static inline int FloorPow2(int n)
-{
-    int exp;
-    frexp((float)n, &exp);
-    return 1 << (exp - 1);
-}
 
 OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int device_type)
 {
@@ -114,114 +103,75 @@ OCLKernel::~OCLKernel()
 	clReleaseContext(m_ctx);
 }
 
-int OCLKernel::run(int arg_count, OCLArgument* args, 
-		          int write_buffer_count, OCLArgument* write_buffers,
-		          int read_buffer_count, OCLArgument* read_buffers)
+int OCLKernel::run(float* data, unsigned int data_count, float* results, unsigned int results_count)
 {
-	cl_mem* cl_read_buffers = new cl_mem[read_buffer_count];
-	cl_mem* cl_write_buffers = new cl_mem[write_buffer_count];
-	cl_int err;
+	m_data = data;
+	m_dataCount = data_count;
+	m_results = results;
+	m_resultsCount = results_count;	
 	
-	for(int i = 0; i < write_buffer_count; i++)
-	{
-		cl_write_buffers[i] = clCreateBuffer(m_ctx, CL_MEM_WRITE_ONLY, write_buffers[i].byte_size, write_buffers[i].data, &err);
-		if(!cl_write_buffers[i] || err != CL_SUCCESS)
-		{
-			fprintf(stderr, "Error: Failed to allocate device memory for write buffer %d!\n", i);
-			print_cl_err(err);
-			return EXIT_FAILURE;
-		}
-		
-		// transfer the input data to device memory
-		err = clEnqueueWriteBuffer(m_cmd_q, cl_write_buffers[i], CL_TRUE, 0, write_buffers[i].byte_size, write_buffers[i].data, 0, NULL, NULL);
-		if(err != CL_SUCCESS)
-		{
-			fprintf(stderr, "Error: Failed to write to input array %d!\n", i);
-			print_cl_err(err);
-			return EXIT_FAILURE;
-		}
-	}
-	
-	for(int i = 0; i < read_buffer_count; i++)
-	{
-		cl_read_buffers[i] = clCreateBuffer(m_ctx, CL_MEM_READ_ONLY, read_buffers[i].byte_size, read_buffers[i].data, &err);
-		if(!cl_read_buffers[i] || err != CL_SUCCESS)
-		{
-			fprintf(stderr, "Error: Failed to allocate device memory for read buffer %d!\n", i);
-			print_cl_err(err);
-			return EXIT_FAILURE;
-		}
-	}
+	// create the device memory buffers
+	m_input = clCreateBuffer(m_ctx, CL_MEM_READ_ONLY, sizeof(float) * m_dataCount, NULL, NULL);
+	m_output = clCreateBuffer(m_ctx, CL_MEM_WRITE_ONLY, sizeof(float) * m_resultsCount, NULL, NULL);
 
-	for(int i = 0; i < arg_count; i++)
+	if(!m_input || !m_output)
 	{
-		if(args[i].is_buffer)
-		{
-			cl_mem rbuf = cl_read_buffers[args[i].buffer_index];
-			err = clSetKernelArg(m_kernel, i, sizeof(cl_mem), &rbuf);
-		}
-		else
-			err = clSetKernelArg(m_kernel, i, args[i].byte_size, args[i].data);
-			
-		if(err != CL_SUCCESS)
-		{
-			fprintf(stderr, "Error: Failed to set kernel argument %d!\n", i);
-			print_cl_err(err);
-			return EXIT_FAILURE;
-		}
-	}
-
-	size_t global[2] = {GLOBAL_WIDTH, GLOBAL_HEIGHT};
-	size_t local[2];
-	
-	// get the maximum work group size for executing the kernel on the device
-	size_t max = 1;
-	err = clGetKernelWorkGroupInfo(m_kernel, m_devid, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &max, NULL);
-	if(err != CL_SUCCESS)
-	{
-		fprintf(stderr, "Error: Failed to retrieve kernel work group info!\n");
-		print_cl_err(err);
+		fprintf(stderr, "Error: Failed to allocate device memory!\n");
 		return EXIT_FAILURE;
 	}
 	
-	local[0] = (max > 1) ? FloorPow2(max) : max;  // use nearest power of two (less than max)
-	if(local[0] == max)
-		local[0] /= 2;
-	local[1] = 1;
+	cl_int err;
+	
+	// transfer the input data to device memory
+	err = clEnqueueWriteBuffer(m_cmd_q, m_input, CL_TRUE, 0, sizeof(float) * m_dataCount, m_data, 0, NULL, NULL);
+	if(err != CL_SUCCESS)
+	{
+		fprintf(stderr, "Error: Failed to write to input array!\n");
+		return EXIT_FAILURE;
+	}
+	
+	// set the arguments to the compute kernel
+	err = 0;
+	err = clSetKernelArg(m_kernel, 0, sizeof(cl_mem), &m_input);
+	err |= clSetKernelArg(m_kernel, 1, sizeof(unsigned int), &m_dataCount);
+	err |= clSetKernelArg(m_kernel, 2, sizeof(cl_mem), &m_output);
+	err |= clSetKernelArg(m_kernel, 3, sizeof(unsigned int), &m_resultsCount);
+	if(err != CL_SUCCESS)
+	{
+		fprintf(stderr, "Error: Failed to set kernel arguments!\n");
+		return EXIT_FAILURE;
+	}
+	
+	// get the maximum work group size for executing the kernel on the device
+	err = clGetKernelWorkGroupInfo(m_kernel, m_devid, CL_KERNEL_WORK_GROUP_SIZE, sizeof(m_local), &m_local, NULL);
+	if(err != CL_SUCCESS)
+	{
+		fprintf(stderr, "Error: Failed to retrieve kernel work group info!\n");
+		return EXIT_FAILURE;
+	}
 	
 	// execute the kernel over the buffer using the maximum number of work_group items for the device
-	err = clEnqueueNDRangeKernel(m_cmd_q, m_kernel, 2, NULL, global, local, 0, NULL, NULL);
+	m_global = m_dataCount;
+	err = clEnqueueNDRangeKernel(m_cmd_q, m_kernel, 1, NULL, &m_global, &m_local, 0, NULL, NULL);
 	if(err != CL_SUCCESS) 
 	{
 		fprintf(stderr, "Error: Failed to execute kernel!\n");
-		print_cl_err(err);
 		return EXIT_FAILURE;
 	}
 	
 	// wait for the computation to finish
 	clFinish(m_cmd_q);
 	
-	for(int i = 0; i < read_buffer_count; i++)
+	// get the results
+	err = clEnqueueReadBuffer(m_cmd_q, m_output, CL_TRUE, 0, sizeof(float) * m_resultsCount, m_results, 0, NULL, NULL);
+	if(err != CL_SUCCESS)
 	{
-		// get the results
-		err = clEnqueueReadBuffer(m_cmd_q, cl_read_buffers[i], CL_TRUE, 0, read_buffers[i].byte_size, read_buffers[i].data, 0, NULL, NULL);
-		if(err != CL_SUCCESS)
-		{
-			fprintf(stderr, "Error: Failed to read output array!\n");
-			print_cl_err(err);
-			return EXIT_FAILURE;
-		}
+		fprintf(stderr, "Error: Failed to read output array!\n");
+		return EXIT_FAILURE;
 	}
 	
-	for(int i = 0; i < write_buffer_count; i++)
-	{
-		clReleaseMemObject(cl_write_buffers[i]);
-	}
-	
-	for(int i = 0; i < read_buffer_count; i++)
-	{
-		clReleaseMemObject(cl_read_buffers[i]);
-	}
+	clReleaseMemObject(m_input);
+	clReleaseMemObject(m_output);
 	
 	return EXIT_SUCCESS;
 }
