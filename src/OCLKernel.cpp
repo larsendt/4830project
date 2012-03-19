@@ -4,9 +4,6 @@
 #include <math.h>
 #include "Util.h"
 
-#define GLOBAL_WIDTH 512
-#define GLOBAL_HEIGHT 1
-
 static inline int FloorPow2(int n)
 {
     int exp;
@@ -43,6 +40,7 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 	if(err != CL_SUCCESS)
 	{
 		fprintf(stderr, "Error: Failed to find platform!\n");
+		print_cl_err(err);
 		exit(EXIT_FAILURE);
 	}
 	
@@ -51,22 +49,25 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 	if(err != CL_SUCCESS)
 	{
 		fprintf(stderr, "Error: Failed to create a device group!\n");
+		print_cl_err(err);
 		exit(EXIT_FAILURE);
 	}
 	
 	// create a compute context
 	m_ctx = clCreateContext(0, 1, &m_devid, NULL, NULL, &err);
-	if(!m_ctx)
+	if(!m_ctx || err != CL_SUCCESS)
 	{
 		fprintf(stderr, "Error: Failed to create a compute context!\n");
+		print_cl_err(err);
 		exit(EXIT_FAILURE);
 	}
 	
 	// create a command queue
 	m_cmd_q = clCreateCommandQueue(m_ctx, m_devid, 0, &err);
-	if(!m_cmd_q)
+	if(!m_cmd_q || err != CL_SUCCESS)
 	{
 		fprintf(stderr, "Error: Failed to create a command queue!\n");
+		print_cl_err(err);
 		exit(EXIT_FAILURE);
 	}
 	
@@ -79,9 +80,10 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 	
 	// create the m_program from the source buffer
 	m_program = clCreateProgramWithSource(m_ctx, 1, &m_kernelSource, NULL, &err);
-	if(!m_program)
+	if(!m_program || err != CL_SUCCESS)
 	{
 		fprintf(stderr, "Error: Failed to create program!\n");
+		print_cl_err(err);
 		exit(EXIT_FAILURE);
 	}
 	
@@ -90,6 +92,7 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 	if(err != CL_SUCCESS)
 	{
 		fprintf(stderr, "Error: Failed to compile program %s\n", m_kernelPath);
+		print_cl_err(err);
 		size_t len;
 		char buffer[2048];
 		clGetProgramBuildInfo(m_program, m_devid, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
@@ -102,6 +105,7 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 	if(!m_kernel || err != CL_SUCCESS)
 	{
 		fprintf(stderr, "Error: Failed to create kernel!\n");
+		print_cl_err(err);
 		exit(EXIT_FAILURE);
 	}
 }
@@ -116,7 +120,8 @@ OCLKernel::~OCLKernel()
 
 int OCLKernel::run(int arg_count, OCLArgument* args, 
 		          int write_buffer_count, OCLArgument* write_buffers,
-		          int read_buffer_count, OCLArgument* read_buffers)
+		          int read_buffer_count, OCLArgument* read_buffers,
+		          int global_width, int global_height)
 {
 	cl_mem* cl_read_buffers = new cl_mem[read_buffer_count];
 	cl_mem* cl_write_buffers = new cl_mem[write_buffer_count];
@@ -171,7 +176,7 @@ int OCLKernel::run(int arg_count, OCLArgument* args,
 		}
 	}
 
-	size_t global[2] = {GLOBAL_WIDTH, GLOBAL_HEIGHT};
+	size_t global[2] = {global_width, global_height};
 	size_t local[2];
 	
 	// get the maximum work group size for executing the kernel on the device

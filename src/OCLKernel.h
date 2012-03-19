@@ -17,7 +17,8 @@ class OCLKernel
 		~OCLKernel();
 		int run(int arg_count, OCLArgument* args, 
 		          int write_buffer_count, OCLArgument* write_buffers,
-		          int read_buffer_count, OCLArgument* read_buffers);
+		          int read_buffer_count, OCLArgument* read_buffers,
+		          int global_width, int global_height);
 		
 	private:
 		int m_deviceType;
