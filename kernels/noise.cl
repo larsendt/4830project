@@ -724,6 +724,34 @@ GradientNoiseArray2d(
     output[index] = tonemap(result);
 }
 
+
+__kernel void 
+FBMNoiseArray2d(	
+	__global uchar4 *output,
+	const float2 bias, 
+	const float2 scale,
+	const float amplitude) 
+{
+	int2 coord = (int2)(get_global_id(0), get_global_id(1));
+	int2 size = (int2)(get_global_size(0), get_global_size(1));
+	float2 position = (float2)(coord.x / (float)size.x, coord.y / (float)size.y);
+    float2 sample = (position + bias) * scale;
+   
+    float value;
+    float4 result = (float4) 0;
+    
+    for(int i = 0; i < 4; i++)
+    {
+    	float mult = pow(2.0, i);
+    	sample = (position + bias) * ((float2)(mult, mult)) * scale;
+    	value = ugnoise2d(sample) * (amplitude / (mult * 2.0));
+    	result = result + (float4)(value, value, value, 1.0f);
+   	}
+   	
+    uint index = coord.y * size.x + coord.x;
+    output[index] = tonemap(result);
+}
+
 __kernel void 
 MonoFractalArray2d(
 	__global uchar4 *output,

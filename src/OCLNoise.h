@@ -6,6 +6,7 @@
 enum NoiseType 
 {
 	GRADIENT,
+	FBM,
 	TURBULENCE,
 	MONOFRACTAL,
 	MULTIFRACTAL
@@ -22,8 +23,10 @@ class OCLNoise
 		int turbulence2D(int dim, unsigned char* data);
 		int monoFractal2D(int dim, unsigned char* data);
 		int multiFractal2D(int dim, unsigned char* data);
+		int fbmNoise2D(int dim, unsigned char* data);
 		
 		OCLKernel* m_gradientKernel;
+		OCLKernel* m_fbmKernel;
 		OCLKernel* m_turbulenceKernel;
 		OCLKernel* m_monoFractalKernel;
 		OCLKernel* m_multiFractalKernel;

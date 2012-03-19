@@ -89,7 +89,7 @@ int GLEngine::begin()
 						m_window->Close();
 						return 0;
 					case sf::Key::Space:
-						m_currentNoiseType = (m_currentNoiseType + 1) % 4;
+						m_currentNoiseType = (m_currentNoiseType + 1) % 5;
 						regenNoise();
 						break;
 					default:
@@ -168,14 +168,18 @@ void GLEngine::regenNoise()
 			printf("Current noise type: 2D Gradient\n");
 			break;
 		case 1:
+			type = FBM;
+			printf("Current noise type: 2D Fractional Brownian Motion\n");
+			break;
+		case 2:
 			type = TURBULENCE;
 			printf("Current noise type: 2D Turbulence\n");
 			break;
-		case 2:
+		case 3:
 			type = MONOFRACTAL;
 			printf("Current noise type: 2D Mono-Fractal\n");
 			break;
-		case 3:
+		case 4:
 			type = MULTIFRACTAL;
 			printf("Current noise type: 2D Ridged Multi-Fractal\n");
 			break;
