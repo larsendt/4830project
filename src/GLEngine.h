@@ -18,7 +18,7 @@ class GLEngine
 		int begin();
 		
 	private:
-		void reperlin();
+		void regenNoise();
 	
 		sf::Window* m_window;
 		sf::Clock* m_clock;
@@ -26,6 +26,7 @@ class GLEngine
 		GLuint m_texture;
 		unsigned char* m_texData;
 		int m_texSize;
+		int m_currentNoiseType;
 
 		float m_updateRate;
 		float m_aspectRatio;

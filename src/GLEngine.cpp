@@ -37,8 +37,9 @@ void GLEngine::initGL(int argc, char** argv)
 	m_texSize = 2048;
 	m_perlin = new OCLNoise();
 	m_texData = new unsigned char[m_texSize * m_texSize * 4];
-	m_perlin->noise2D(m_texSize, m_texData);
+	m_perlin->noise2D(GRADIENT, m_texSize, m_texData);
 	m_texture = Texture::loadFromMemory(m_texSize, m_texSize, m_texData);
+	m_currentNoiseType = 0;
 	
 	m_rotation = 0;
 	m_mouseRotX = 0;
@@ -88,7 +89,8 @@ int GLEngine::begin()
 						m_window->Close();
 						return 0;
 					case sf::Key::Space:
-						reperlin();
+						m_currentNoiseType = (m_currentNoiseType + 1) % 4;
+						regenNoise();
 						break;
 					default:
 						break;
@@ -155,12 +157,35 @@ void GLEngine::resize(int width, int height)
 	glLoadIdentity();
 }
 
-void GLEngine::reperlin()
+void GLEngine::regenNoise()
 {
-	printf("reperlin()\n");
-	m_perlin->noise2D(m_texSize, m_texData);
+	NoiseType type;
+	
+	switch(m_currentNoiseType)
+	{
+		case 0:
+			type = GRADIENT;
+			printf("Current noise type: 2D Gradient\n");
+			break;
+		case 1:
+			type = TURBULENCE;
+			printf("Current noise type: 2D Turbulence\n");
+			break;
+		case 2:
+			type = MONOFRACTAL;
+			printf("Current noise type: 2D Mono-Fractal\n");
+			break;
+		case 3:
+			type = MULTIFRACTAL;
+			printf("Current noise type: 2D Ridged Multi-Fractal\n");
+			break;
+		default:
+			printf("Current noise type: 2D Gradient\n");
+			type = GRADIENT;
+	}
+	
+	m_perlin->noise2D(type, m_texSize, m_texData);
 	Texture::deleteTexture(m_texture);
 	m_texture = Texture::loadFromMemory(m_texSize, m_texSize, m_texData);
-	printf("done\n");
 }
 
