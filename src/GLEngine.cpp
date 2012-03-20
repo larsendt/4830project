@@ -34,13 +34,8 @@ void GLEngine::initGL(int argc, char** argv)
     glDisable(GL_BLEND);
     glEnable(GL_COLOR_MATERIAL);
 	
-	m_texSize = 2048;
-	m_perlin = new OCLNoise();
-	m_texData = new unsigned char[m_texSize * m_texSize * 4];
-	m_perlin->noise2D(GRADIENT, m_texSize, m_texData);
-	m_texture = Texture::loadFromMemory(m_texSize, m_texSize, m_texData);
-	m_currentNoiseType = 0;
-	
+	m_heightMap = new HeightMap();
+		
 	m_rotation = 0;
 	m_mouseRotX = 0;
 	m_mouseRotY = 0;
@@ -89,7 +84,6 @@ int GLEngine::begin()
 						m_window->Close();
 						return 0;
 					case sf::Key::Space:
-						m_currentNoiseType = (m_currentNoiseType + 1) % 5;
 						regenNoise();
 						break;
 					default:
@@ -115,13 +109,7 @@ void GLEngine::drawScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	
-  	glBindTexture(GL_TEXTURE_2D, m_texture);
-  	glBegin(GL_POLYGON);
-  	glTexCoord2f(0, 0); glVertex3f(-m_aspectRatio, -1, 0);
-  	glTexCoord2f(1, 0); glVertex3f(m_aspectRatio, -1, 0);
-  	glTexCoord2f(1, 1); glVertex3f(m_aspectRatio, 1, 0);
-  	glTexCoord2f(0, 1); glVertex3f(-m_aspectRatio, 1, 0);
-  	glEnd();
+  	m_heightMap->draw();
 }
 
 
@@ -159,37 +147,6 @@ void GLEngine::resize(int width, int height)
 
 void GLEngine::regenNoise()
 {
-	NoiseType type;
-	
-	switch(m_currentNoiseType)
-	{
-		case 0:
-			type = GRADIENT;
-			printf("Current noise type: 2D Gradient\n");
-			break;
-		case 1:
-			type = FBM;
-			printf("Current noise type: 2D Fractional Brownian Motion\n");
-			break;
-		case 2:
-			type = TURBULENCE;
-			printf("Current noise type: 2D Turbulence\n");
-			break;
-		case 3:
-			type = MONOFRACTAL;
-			printf("Current noise type: 2D Mono-Fractal\n");
-			break;
-		case 4:
-			type = MULTIFRACTAL;
-			printf("Current noise type: 2D Ridged Multi-Fractal\n");
-			break;
-		default:
-			printf("Current noise type: 2D Gradient\n");
-			type = GRADIENT;
-	}
-	
-	m_perlin->noise2D(type, m_texSize, m_texData);
-	Texture::deleteTexture(m_texture);
-	m_texture = Texture::loadFromMemory(m_texSize, m_texSize, m_texData);
+	m_heightMap->nextHeightMap();
 }
 

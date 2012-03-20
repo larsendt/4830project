@@ -3,7 +3,7 @@
 
 #include <SFML/Window.hpp>
 #include <vector>
-#include "OCLNoise.h"
+#include "HeightMap.h"
 
 class GLEngine
 {
@@ -22,12 +22,8 @@ class GLEngine
 	
 		sf::Window* m_window;
 		sf::Clock* m_clock;
-		OCLNoise* m_perlin;
-		GLuint m_texture;
-		unsigned char* m_texData;
-		int m_texSize;
-		int m_currentNoiseType;
-
+		HeightMap* m_heightMap;
+		
 		float m_updateRate;
 		float m_aspectRatio;
 		int m_width;

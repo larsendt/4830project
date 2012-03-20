@@ -19,20 +19,6 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 	
 	fprintf(stdout, "Compiling %s...\n", m_kernelPath);
 	
-	if(m_deviceType == CL_DEVICE_TYPE_GPU)
-	{
-		printf("OCLKernel using GPU\n");
-	}
-	else if(m_deviceType == CL_DEVICE_TYPE_CPU)
-	{
-		printf("OCLKernel using CPU\n");
-	}
-	else
-	{
-		fprintf(stderr, "OCLKernel invalid device type: %d\n", m_deviceType);
-		exit(EXIT_FAILURE);
-	}
-	
 	cl_int err; // for error code
 	
 	// connect to a compute device
@@ -195,9 +181,10 @@ int OCLKernel::run(int arg_count, OCLArgument* args,
 	local[1] = 1;
 	
 	// execute the kernel over the buffer using the maximum number of work_group items for the device
-	err = clEnqueueNDRangeKernel(m_cmd_q, m_kernel, 2, NULL, global, local, 0, NULL, NULL);
+	err = clEnqueueNDRangeKernel(m_cmd_q, m_kernel, 2, NULL, global, NULL, 0, NULL, NULL);
 	if(err != CL_SUCCESS) 
 	{
+		fprintf(stderr, "%d %d\n", global[0]*global[1], local[0]*local[1]);
 		fprintf(stderr, "Error: Failed to execute kernel!\n");
 		print_cl_err(err);
 		return EXIT_FAILURE;
