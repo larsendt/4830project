@@ -3,7 +3,7 @@
 
 #include <SFML/Window.hpp>
 #include <vector>
-#include "HeightMap.h"
+#include "SimpleVoxelRenderer.h"
 
 class GLEngine
 {
@@ -22,8 +22,8 @@ class GLEngine
 	
 		sf::Window* m_window;
 		sf::Clock* m_clock;
-		HeightMap* m_heightMap;
-		
+		SimpleVoxelRenderer* m_svr;
+
 		float m_updateRate;
 		float m_aspectRatio;
 		int m_width;

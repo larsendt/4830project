@@ -5,6 +5,7 @@
 #include <math.h>
 
 #include "Texture.h"
+#include "Types.h"
 
 
 GLEngine::GLEngine(int argc, char** argv)
@@ -34,13 +35,36 @@ void GLEngine::initGL(int argc, char** argv)
     glDisable(GL_BLEND);
     glEnable(GL_COLOR_MATERIAL);
 	
-	m_heightMap = new HeightMap();
-		
-	m_rotation = 0;
 	m_mouseRotX = 0;
 	m_mouseRotY = 0;
 	m_mouseLastX = 0;
 	m_mouseLastY = 0;
+	m_scale = 1.0;
+	
+	int d = 32;
+	float s = 0.04;
+	int index = 0;
+	VOXEL* voxels = new VOXEL[d*d*d];
+	for(int i = 0; i < d; i++)
+	{
+		for(int j = 0; j < d; j++)
+		{
+			for(int k = 0; k < d; k++)
+			{
+				VOXEL v;
+				COORD3D* pos = new COORD3D;
+				pos->a = (i-(d/2))*s;
+				pos->b = (j-(d/2))*s;
+				pos->c = (k-(d/2))*s;
+				v.pos = pos;
+				voxels[index] = v;
+				index ++;
+			}
+		}
+	}
+	
+	m_svr = new SimpleVoxelRenderer();
+	m_svr->setVoxelData(voxels, d*d*d);
 	
 	m_updateRate = 1.0/60.0;
 	resize(m_width, m_height);
@@ -108,10 +132,15 @@ void GLEngine::drawScene()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
+    gluLookAt(0, 0, 2, 0, 0, 0, 0, 1, 0);	
+    
+    glRotatef(m_mouseRotX, 1, 0, 0);
+    glRotatef(m_mouseRotY, 0, 1, 0);
+    glScalef(m_scale, m_scale, m_scale);
 	
-  	m_heightMap->draw();
+	m_svr->draw();
+	
 }
-
 
 void GLEngine::update()
 {
@@ -140,13 +169,13 @@ void GLEngine::resize(int width, int height)
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-m_aspectRatio, +m_aspectRatio, -1.0, +1.0, -10.0, +10.0);
+	gluPerspective(45, m_aspectRatio, 0.05, 20.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
 
 void GLEngine::regenNoise()
 {
-	m_heightMap->nextHeightMap();
+
 }
 

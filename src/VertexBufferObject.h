@@ -4,26 +4,24 @@
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 
-struct Vertex
-{	
-	float coord[3];
-	float normal[3];
-};
+#include "Types.h"
 
 class VertexBufferObject
 {
 	public:
-		VertexBufferObject();
-		VertexBufferObject(int vertex_count, Vertex* vertex_data, GLuint* index_data);
+		// the options for mode are GL_POINTS, GL_TRIANGLES, etc.. (see http://www.opengl.org/sdk/docs/man/xhtml/glDrawElements.xml, first parameter)
+		VertexBufferObject(GLenum mode);
+		VertexBufferObject(GLenum mode, int vertex_count, VERTEX* vertex_data, GLuint* index_data);
 		~VertexBufferObject();
 		
-		void setData(int vertex_count, Vertex* vertex_data, GLuint* index_data);
+		void setData(int vertex_count, VERTEX* vertex_data, GLuint* index_data);
 		void draw();
 		void clear();
 		
 	private:
 		GLuint m_vbo;
 		GLuint m_ibo;
+		GLenum m_mode;
 		int m_vertexCount;
 };
 
