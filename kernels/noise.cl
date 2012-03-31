@@ -724,6 +724,30 @@ GradientNoiseArray2d(
     output[index] = tonemap(result);
 }
 
+__kernel void 
+GradientNoiseArray3dSlice(	
+	__global uchar4 **output,
+	const float4 bias, 
+	const float4 scale,
+	const float amplitude,
+	const float slice) 
+{
+	int2 coord = (int2)(get_global_id(0), get_global_id(1));
+
+	int2 size = (int2)(get_global_size(0), get_global_size(1));
+
+	float4 position = (float4)((coord.x / (float)size.x), (coord.y / (float)size.y), slice, 0.0);
+	
+    float4 sample = (position + bias) * scale;
+   
+    float value = ugnoise3d(sample);
+    
+	float4 result = (float4)(value, value, value, 1.0f) * amplitude;
+
+    uint index = coord.y * size.x + coord.x;
+    output[index][0] = tonemap(result);
+}
+
 
 __kernel void 
 FBMNoiseArray2d(	

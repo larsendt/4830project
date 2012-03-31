@@ -16,20 +16,24 @@ class OCLNoise
 {
 	public:
 		OCLNoise();
-		int noise2D(NoiseType type, int dim, unsigned char* data);
+		bool noise2D(NoiseType type, int dim, unsigned char* data);
+		bool noise3D(NoiseType type, int dim, unsigned char* data);
 	
 	private:
-		int gradientNoise2D(int dim, unsigned char* data);
-		int turbulence2D(int dim, unsigned char* data);
-		int monoFractal2D(int dim, unsigned char* data);
-		int multiFractal2D(int dim, unsigned char* data);
-		int fbmNoise2D(int dim, unsigned char* data);
+		bool gradientNoise2D(int dim, unsigned char* data);
+		bool turbulence2D(int dim, unsigned char* data);
+		bool monoFractal2D(int dim, unsigned char* data);
+		bool multiFractal2D(int dim, unsigned char* data);
+		bool fbmNoise2D(int dim, unsigned char* data);
+
+		bool gradientNoise3D(int dim, unsigned char* data);
 		
 		OCLKernel* m_gradientKernel;
 		OCLKernel* m_fbmKernel;
 		OCLKernel* m_turbulenceKernel;
 		OCLKernel* m_monoFractalKernel;
 		OCLKernel* m_multiFractalKernel;
+		OCLKernel* m_gradient3dSliceKernel;
 };
 
 #endif

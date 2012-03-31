@@ -3,11 +3,18 @@
 
 #include <CL/cl.h>
 
+enum BufferType {
+	READ,
+	WRITE,
+	READ_WRITE
+};
+
 struct OCLArgument {
 	void* data;
-	int byte_size;
+	size_t byte_size;
 	bool is_buffer;
 	int buffer_index; // the index within either the read_buffers or write_buffers arrays
+	BufferType buffer_type;
 };
 
 class OCLKernel 
@@ -15,9 +22,8 @@ class OCLKernel
 	public:
 		OCLKernel(const char* kernel_path, const char* kernel_name, int device_type = CL_DEVICE_TYPE_GPU);
 		~OCLKernel();
-		int run(int arg_count, OCLArgument* args, 
-		          int write_buffer_count, OCLArgument* write_buffers,
-		          int read_buffer_count, OCLArgument* read_buffers,
+		bool run(int arg_count, OCLArgument* args, 
+		          int buffer_count, OCLArgument* buffers,
 		          int global_width, int global_height);
 		
 	private:
@@ -33,5 +39,7 @@ class OCLKernel
 		cl_program m_program;     // compute program
 		cl_kernel m_kernel;       // compute kernel
 };
+
+	
 
 #endif

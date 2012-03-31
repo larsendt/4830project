@@ -6,6 +6,8 @@
 
 #include "Texture.h"
 #include "Types.h"
+#include "VoxelGen.h"
+#include "OCLNoise.h"
 
 
 GLEngine::GLEngine(int argc, char** argv)
@@ -41,30 +43,22 @@ void GLEngine::initGL(int argc, char** argv)
 	m_mouseLastY = 0;
 	m_scale = 1.0;
 	
-	int d = 32;
-	float s = 0.04;
+	int d = 64;
 	int index = 0;
-	VOXEL* voxels = new VOXEL[d*d*d];
-	for(int i = 0; i < d; i++)
+	unsigned char* noisedata = new unsigned char[d*d*d];
+	
+	OCLNoise* noise = new OCLNoise();
+	if(!noise->noise3D(GRADIENT, d, noisedata))
 	{
-		for(int j = 0; j < d; j++)
-		{
-			for(int k = 0; k < d; k++)
-			{
-				VOXEL v;
-				COORD3D* pos = new COORD3D;
-				pos->a = (i-(d/2))*s;
-				pos->b = (j-(d/2))*s;
-				pos->c = (k-(d/2))*s;
-				v.pos = pos;
-				voxels[index] = v;
-				index ++;
-			}
-		}
+		fprintf(stderr, "Error: Noise generation borked\n");
+		exit(EXIT_FAILURE);
 	}
 	
+	VoxelGen* vg = new VoxelGen();
+	vg->set3DNoiseData(noisedata, d, 0.02);
+	
 	m_svr = new SimpleVoxelRenderer();
-	m_svr->setVoxelData(voxels, d*d*d);
+	m_svr->setVoxelData(vg->voxelData(), vg->voxelCount());
 	
 	m_updateRate = 1.0/60.0;
 	resize(m_width, m_height);
@@ -137,6 +131,8 @@ void GLEngine::drawScene()
     glRotatef(m_mouseRotX, 1, 0, 0);
     glRotatef(m_mouseRotY, 0, 1, 0);
     glScalef(m_scale, m_scale, m_scale);
+    
+    glTranslatef(-0.5, -0.5, -0.5);
 	
 	m_svr->draw();
 	

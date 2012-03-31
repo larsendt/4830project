@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "Util.h"
 
 static inline int FloorPow2(int n)
@@ -17,7 +18,7 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 	m_kernelPath = kernel_path;
 	m_kernelName = kernel_name;
 	
-	fprintf(stdout, "Compiling %s...\n", m_kernelPath);
+	fprintf(stdout, "Compiling %s for main function %s...\n", m_kernelPath, m_kernelName);
 	
 	cl_int err; // for error code
 	
@@ -94,6 +95,7 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 		print_cl_err(err);
 		exit(EXIT_FAILURE);
 	}
+
 }
 
 OCLKernel::~OCLKernel()
@@ -104,61 +106,82 @@ OCLKernel::~OCLKernel()
 	clReleaseContext(m_ctx);
 }
 
-int OCLKernel::run(int arg_count, OCLArgument* args, 
-		          int write_buffer_count, OCLArgument* write_buffers,
-		          int read_buffer_count, OCLArgument* read_buffers,
+bool OCLKernel::run(int arg_count, OCLArgument* args, 
+		          int buffer_count, OCLArgument* buffers,
 		          int global_width, int global_height)
 {
-	cl_mem* cl_read_buffers = new cl_mem[read_buffer_count];
-	cl_mem* cl_write_buffers = new cl_mem[write_buffer_count];
+	cl_mem* cl_buffers = new cl_mem[buffer_count];
 	cl_int err;
 	
-	for(int i = 0; i < write_buffer_count; i++)
+	for(int i = 0; i < buffer_count; i++)
 	{
-		cl_write_buffers[i] = clCreateBuffer(m_ctx, CL_MEM_WRITE_ONLY, write_buffers[i].byte_size, write_buffers[i].data, &err);
-		if(!cl_write_buffers[i] || err != CL_SUCCESS)
+		if(buffers[i].buffer_type == WRITE)
 		{
-			fprintf(stderr, "Error: Failed to allocate device memory for write buffer %d!\n", i);
-			print_cl_err(err);
-			return EXIT_FAILURE;
-		}
+			cl_buffers[i] = clCreateBuffer(m_ctx, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR, buffers[i].byte_size, buffers[i].data, &err);
+			if(!cl_buffers[i] || err != CL_SUCCESS)
+			{
+				fprintf(stderr, "Error: Failed to allocate device memory for buffer %d (WRITE)!\n", i);
+				print_cl_err(err);
+				return false;
+			}
 		
-		// transfer the input data to device memory
-		err = clEnqueueWriteBuffer(m_cmd_q, cl_write_buffers[i], CL_TRUE, 0, write_buffers[i].byte_size, write_buffers[i].data, 0, NULL, NULL);
-		if(err != CL_SUCCESS)
+			// transfer the input data to device memory
+			/*err = clEnqueueWriteBuffer(m_cmd_q, cl_buffers[i], CL_TRUE, 0, buffers[i].byte_size, buffers[i].data, 0, NULL, NULL);
+			if(err != CL_SUCCESS)
+			{
+				fprintf(stderr, "Error: Failed to enqueue buffer %d (WRITE)!\n", i);
+				print_cl_err(err);
+				return false;
+			}*/
+		}
+		else if(buffers[i].buffer_type == READ)
 		{
-			fprintf(stderr, "Error: Failed to write to input array %d!\n", i);
-			print_cl_err(err);
-			return EXIT_FAILURE;
+			cl_buffers[i] = clCreateBuffer(m_ctx, CL_MEM_READ_ONLY, buffers[i].byte_size, buffers[i].data, &err);
+			if(!cl_buffers[i] || err != CL_SUCCESS)
+			{
+				fprintf(stderr, "Error: Failed to allocate device memory for buffer %d (READ)!\n", i);
+				print_cl_err(err);
+				return false;
+			}
+		}
+		else if(buffers[i].buffer_type == READ_WRITE)
+		{
+			cl_buffers[i] = clCreateBuffer(m_ctx, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, buffers[i].byte_size, buffers[i].data, &err);
+			if(!cl_buffers[i] || err != CL_SUCCESS)
+			{
+				fprintf(stderr, "Error: Failed to allocate device memory for buffer %d (READ_WRITE)!\n", i);
+				print_cl_err(err);
+				return false;
+			}
+			
+			// transfer the input data to device memory
+			/*err = clEnqueueWriteBuffer(m_cmd_q, cl_buffers[i], CL_TRUE, 0, buffers[i].byte_size, buffers[i].data, 0, NULL, NULL);
+			if(err != CL_SUCCESS)
+			{
+				fprintf(stderr, "Error: Failed to enqueue buffer %d (READ_WRITE)!\n", i);
+				print_cl_err(err);
+				return false;
+			}*/
 		}
 	}
 	
-	for(int i = 0; i < read_buffer_count; i++)
-	{
-		cl_read_buffers[i] = clCreateBuffer(m_ctx, CL_MEM_READ_ONLY, read_buffers[i].byte_size, read_buffers[i].data, &err);
-		if(!cl_read_buffers[i] || err != CL_SUCCESS)
-		{
-			fprintf(stderr, "Error: Failed to allocate device memory for read buffer %d!\n", i);
-			print_cl_err(err);
-			return EXIT_FAILURE;
-		}
-	}
-
 	for(int i = 0; i < arg_count; i++)
 	{
 		if(args[i].is_buffer)
 		{
-			cl_mem rbuf = cl_read_buffers[args[i].buffer_index];
-			err = clSetKernelArg(m_kernel, i, sizeof(cl_mem), &rbuf);
+			cl_mem buf = cl_buffers[args[i].buffer_index];
+			err = clSetKernelArg(m_kernel, i, sizeof(cl_mem), &buf);
 		}
 		else
+		{
 			err = clSetKernelArg(m_kernel, i, args[i].byte_size, args[i].data);
+		}
 			
 		if(err != CL_SUCCESS)
 		{
 			fprintf(stderr, "Error: Failed to set kernel argument %d!\n", i);
 			print_cl_err(err);
-			return EXIT_FAILURE;
+			return false;
 		}
 	}
 
@@ -172,50 +195,53 @@ int OCLKernel::run(int arg_count, OCLArgument* args,
 	{
 		fprintf(stderr, "Error: Failed to retrieve kernel work group info!\n");
 		print_cl_err(err);
-		return EXIT_FAILURE;
+		return false;
 	}
 	
 	local[0] = (max > 1) ? FloorPow2(max) : max;  // use nearest power of two (less than max)
 	if(local[0] == max)
 		local[0] /= 2;
+	
+	if(local[0] > global[0])
+		local[0] = global[0];
+		
 	local[1] = 1;
 	
 	// execute the kernel over the buffer using the maximum number of work_group items for the device
-	err = clEnqueueNDRangeKernel(m_cmd_q, m_kernel, 2, NULL, global, NULL, 0, NULL, NULL);
+	err = clEnqueueNDRangeKernel(m_cmd_q, m_kernel, 2, NULL, global, local, 0, NULL, NULL);
 	if(err != CL_SUCCESS) 
 	{
 		fprintf(stderr, "%d %d\n", global[0]*global[1], local[0]*local[1]);
 		fprintf(stderr, "Error: Failed to execute kernel!\n");
 		print_cl_err(err);
-		return EXIT_FAILURE;
+		return false;
 	}
 	
 	// wait for the computation to finish
 	clFinish(m_cmd_q);
 	
-	for(int i = 0; i < read_buffer_count; i++)
+	for(int i = 0; i < buffer_count; i++)
 	{
-		// get the results
-		err = clEnqueueReadBuffer(m_cmd_q, cl_read_buffers[i], CL_TRUE, 0, read_buffers[i].byte_size, read_buffers[i].data, 0, NULL, NULL);
-		if(err != CL_SUCCESS)
+		if(buffers[i].buffer_type == READ || buffers[i].buffer_type == READ_WRITE)
 		{
-			fprintf(stderr, "Error: Failed to read output array!\n");
-			print_cl_err(err);
-			return EXIT_FAILURE;
+			// get the results
+			err = clEnqueueReadBuffer(m_cmd_q, cl_buffers[i], CL_TRUE, 0, buffers[i].byte_size, buffers[i].data, 0, NULL, NULL);
+			if(err != CL_SUCCESS)
+			{
+				fprintf(stderr, "Error: Failed to read output buffer %d!\n", i);
+				print_cl_err(err);
+				return false;
+			}
 		}
 	}
 	
-	for(int i = 0; i < write_buffer_count; i++)
+	for(int i = 0; i < buffer_count; i++)
 	{
-		clReleaseMemObject(cl_write_buffers[i]);
+		clReleaseMemObject(cl_buffers[i]);
 	}
 	
-	for(int i = 0; i < read_buffer_count; i++)
-	{
-		clReleaseMemObject(cl_read_buffers[i]);
-	}
 	
-	return EXIT_SUCCESS;
+	return true;
 }
 
 
