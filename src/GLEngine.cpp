@@ -43,23 +43,9 @@ void GLEngine::initGL(int argc, char** argv)
 	m_mouseLastY = 0;
 	m_scale = 1.0;
 	
-	int d = 256;
-	float s = 1.0/d;
-	int index = 0;
-	unsigned char* noisedata = new unsigned char[d*d*d];
-	
-	OCL3DFBMNoise* noise = new OCL3DFBMNoise();
-	if(!noise->noise(d, noisedata))
-	{
-		fprintf(stderr, "Error: Noise generation borked\n");
-		exit(EXIT_FAILURE);
-	}
-	
 	m_smc = new SoftwareMarchingCubes();
-	m_smc->setNoiseData(noisedata, d, s);
-	
-	delete[] noisedata;
-	delete noise;
+	m_dim = 256;
+	genNoise(m_dim);
 	
 	m_updateRate = 1.0/60.0;
 	resize(m_width, m_height);
@@ -102,8 +88,13 @@ int GLEngine::begin()
 					case sf::Key::Escape:
 						m_window->Close();
 						return 0;
-					case sf::Key::Space:
-						regenNoise();
+					case sf::Key::Up:
+						m_dim *= 2;
+						genNoise(m_dim);
+						break;
+					case sf::Key::Down:
+						m_dim /= 2;
+						genNoise(m_dim);
 						break;
 					default:
 						break;
@@ -171,8 +162,25 @@ void GLEngine::resize(int width, int height)
 	glLoadIdentity();
 }
 
-void GLEngine::regenNoise()
+void GLEngine::genNoise(int dim)
 {
+	printf("Generating terrain with size %d (%dx%dx%d)\n", dim*dim*dim, dim, dim, dim);
 	
+	int d = dim;
+	float s = 1.0/d;
+	int index = 0;
+	unsigned char* noisedata = new unsigned char[d*d*d];
+	
+	OCL3DFBMNoise* noise = new OCL3DFBMNoise();
+	if(!noise->noise(d, noisedata))
+	{
+		fprintf(stderr, "Error: Noise generation borked\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	m_smc->setNoiseData(noisedata, d, s);
+	
+	delete[] noisedata;
+	delete noise;
 }
 

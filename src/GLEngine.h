@@ -18,7 +18,7 @@ class GLEngine
 		int begin();
 		
 	private:
-		void regenNoise();
+		void genNoise(int dim);
 	
 		sf::Window* m_window;
 		sf::Clock* m_clock;
@@ -34,6 +34,7 @@ class GLEngine
         float m_mouseRotX;
         float m_mouseRotY;
         float m_scale;
+        int m_dim;
         
 };
 
