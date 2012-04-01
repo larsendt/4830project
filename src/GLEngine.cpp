@@ -27,7 +27,7 @@ GLEngine::~GLEngine()
 
 void GLEngine::initGL(int argc, char** argv)
 {
-	m_window = new sf::Window(sf::VideoMode(512, 512), "GLEngine");
+	m_window = new sf::Window(sf::VideoMode::GetDesktopMode(), "GLEngine");
 	m_clock = new sf::Clock();
 	m_width = m_window->GetWidth();
 	m_height = m_window->GetHeight();

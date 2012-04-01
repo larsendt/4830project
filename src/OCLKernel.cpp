@@ -81,7 +81,7 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 		fprintf(stderr, "Error: Failed to compile program %s\n", m_kernelPath);
 		print_cl_err(err);
 		size_t len;
-		char buffer[4096];
+		char buffer[8192];
 		clGetProgramBuildInfo(m_program, m_devid, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
 		fprintf(stderr, "%s\n", buffer);
 		exit(EXIT_FAILURE);

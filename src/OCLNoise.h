@@ -9,7 +9,8 @@ enum NoiseType
 	FBM,
 	TURBULENCE,
 	MONOFRACTAL,
-	MULTIFRACTAL
+	MULTIFRACTAL,
+	RIDGEDMULTIFRACTAL,
 };
 
 class OCLNoise 
@@ -28,6 +29,9 @@ class OCLNoise
 
 		bool gradientNoise3D(int dim, unsigned char* data);
 		bool fbmNoise3D(int dim, unsigned char* data);
+		bool turbulence3D(int dim, unsigned char* data);
+		bool multiFractal3D(int dim, unsigned char* data);
+		bool ridgedMultiFractal3D(int dim, unsigned char* data);
 		
 		OCLKernel* m_gradientKernel;
 		OCLKernel* m_fbmKernel;
@@ -36,6 +40,9 @@ class OCLNoise
 		OCLKernel* m_multiFractalKernel;
 		OCLKernel* m_gradient3dKernel;
 		OCLKernel* m_fbm3dKernel;
+		OCLKernel* m_multiFractal3dKernel;
+		OCLKernel* m_turbulence3dKernel;
+		OCLKernel* m_ridgedMultiFractal3dKernel;
 };
 
 #endif

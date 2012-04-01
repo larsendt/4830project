@@ -12,6 +12,9 @@ OCLNoise::OCLNoise()
 	m_multiFractalKernel = new OCLKernel("kernels/noise.cl", "RidgedMultiFractalArray2d");
 	m_gradient3dKernel = new OCLKernel("kernels/noise.cl", "GradientNoiseArray3d");
 	m_fbm3dKernel = new OCLKernel("kernels/noise.cl", "FBMNoiseArray3d");
+	m_multiFractal3dKernel = new OCLKernel("kernels/noise.cl", "MultiFractalArray3d");
+	m_turbulence3dKernel = new OCLKernel("kernels/noise.cl", "TurbulenceArray3d");
+	m_ridgedMultiFractal3dKernel = new OCLKernel("kernels/noise.cl", "RidgedMultiFractalArray3d");
 }
 
 bool OCLNoise::noise2D(NoiseType type, int dim, unsigned char* data)
@@ -26,7 +29,7 @@ bool OCLNoise::noise2D(NoiseType type, int dim, unsigned char* data)
 			return turbulence2D(dim, data);
 		case MONOFRACTAL:
 			return monoFractal2D(dim, data);
-		case MULTIFRACTAL:
+		case RIDGEDMULTIFRACTAL:
 			return multiFractal2D(dim, data);
 		default:
 			fprintf(stderr, "Error: Unknown 2D noise type.\n");
@@ -43,10 +46,11 @@ bool OCLNoise::noise3D(NoiseType type, int dim, unsigned char* data)
 		case FBM:
 			return fbmNoise3D(dim, data);
 		case TURBULENCE:
-		case MONOFRACTAL:
+			return turbulence3D(dim, data);
 		case MULTIFRACTAL:
-			fprintf(stderr, "Error: Unsupported 3D noise type: %d\n", type);
-			return false;
+			return multiFractal3D(dim, data);
+		case RIDGEDMULTIFRACTAL:
+			return ridgedMultiFractal3D(dim, data);
 		default:
 			fprintf(stderr, "Error: Unknown 3D noise type.\n");
 			return false;
@@ -288,6 +292,65 @@ bool OCLNoise::turbulence2D(int dim, unsigned char* data)
 	return m_turbulenceKernel->run(7, args, 1, buffers, dim, dim);
 }
 
+bool OCLNoise::turbulence3D(int dim, unsigned char* data)
+{
+	float bias[4] = {128, 128, 128, 128};
+	float scale[4] = {20, 20, 20, 20};
+	float lacunarity = 1.02;
+	float increment = 1.0;
+	float octaves = 3.3;
+	float amplitude = 1.0;
+	
+	OCLArgument args[8];
+	OCLArgument buffers[1];
+	
+	OCLArgument a;
+	a.data = data;
+	a.byte_size = dim * dim * dim * sizeof(unsigned char);
+	a.is_buffer = true;
+	a.buffer_index = 0;
+	a.buffer_type = READ;
+	args[0] = a;
+	buffers[0] = a;
+
+	a.data = bias;
+	a.byte_size = sizeof(bias);
+	a.is_buffer = false;
+	args[1] = a;
+	
+	a.data = scale;
+	a.byte_size = sizeof(scale);
+	a.is_buffer = false;
+	args[2] = a;
+	
+	a.data = &lacunarity;
+	a.byte_size = sizeof(lacunarity);
+	a.is_buffer = false;
+	args[3] = a;
+	
+	a.data = &increment;
+	a.byte_size = sizeof(increment);
+	a.is_buffer = false;
+	args[4] = a;
+	
+	a.data = &octaves;
+	a.byte_size = sizeof(octaves);
+	a.is_buffer = false;
+	args[5] = a;
+	
+	a.data = &amplitude;
+	a.byte_size = sizeof(amplitude);
+	a.is_buffer = false;	
+	args[6] = a;
+	
+	a.data = &dim;
+	a.byte_size = sizeof(dim);
+	a.is_buffer = false;
+	args[7] = a;
+		
+	return m_turbulence3dKernel->run(8, args, 1, buffers, dim*dim*dim, 1);
+}
+
 
 bool OCLNoise::monoFractal2D(int dim, unsigned char* data)
 {
@@ -344,6 +407,17 @@ bool OCLNoise::monoFractal2D(int dim, unsigned char* data)
 	args[6] = a;
 		
 	return m_monoFractalKernel->run(7, args, 1, buffers, dim, dim);
+}
+
+
+bool OCLNoise::multiFractal3D(int dim, unsigned char* data)
+{
+	return true;
+}
+
+bool OCLNoise::ridgedMultiFractal3D(int dim, unsigned char* data)
+{
+	return true;
 }
 
 

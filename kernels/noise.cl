@@ -834,6 +834,32 @@ MonoFractalArray2d(
 }
 
 __kernel void 
+MultiFractalArray3d(
+	__global uchar *output,
+	const float4 bias, 
+	const float4 scale,
+	const float lacunarity, 
+	const float increment, 
+	const float octaves,	
+	const float amplitude,
+	const int dim)
+{
+	int id = get_global_id(0);
+	int x = id/(dim*dim);
+	int y = (id%(dim*dim))/dim;
+	int z = (id%(dim*dim))%dim;
+
+	float4 position = (float4)((float)x/dim, (float)y/dim, (float)z/dim, 0.0);
+    float4 sample = (position + bias) * scale;
+   
+	float value = multifractal3d(sample, scale.x, lacunarity, increment, octaves);
+
+	float4 result = (float4)(value, value, value, 1.0f) * amplitude;
+
+    output[id] = tonemap(result).x;
+}
+
+__kernel void 
 TurbulenceArray2d(
 	__global uchar4 *output,
 	const float2 bias, 
@@ -857,6 +883,32 @@ TurbulenceArray2d(
 
     uint index = coord.y * size.x + coord.x;
     output[index] = tonemap(result);
+}
+
+__kernel void 
+TurbulenceArray3d(
+	__global uchar *output,
+	const float4 bias, 
+	const float4 scale,
+	const float lacunarity, 
+	const float increment, 
+	const float octaves,	
+	const float amplitude,
+	const int dim) 
+{
+	int id = get_global_id(0);
+	int x = id/(dim*dim);
+	int y = (id%(dim*dim))/dim;
+	int z = (id%(dim*dim))%dim;
+
+	float4 position = (float4)((float)x/dim, (float)y/dim, (float)z/dim, 0.0);
+    float4 sample = (position + bias) * scale;
+
+	float value = turbulence3d(sample, scale.x, lacunarity, increment, octaves);
+
+	float4 result = (float4)(value, value, value, 1.0f) * amplitude;
+
+    output[id] = tonemap(result).x;
 }
 
 __kernel void 
@@ -884,6 +936,32 @@ RidgedMultiFractalArray2d(
 
     uint index = coord.y * size.x + coord.x;
     output[index] = tonemap(result);
+}
+
+__kernel void 
+RidgedMultiFractalArray3d(	
+	__global uchar *output,
+	const float4 bias, 
+	const float4 scale,
+	const float lacunarity, 
+	const float increment, 
+	const float octaves,	
+	const float amplitude,
+	const int dim) 
+{
+	int id = get_global_id(0);
+	int x = id/(dim*dim);
+	int y = (id%(dim*dim))/dim;
+	int z = (id%(dim*dim))%dim;
+
+	float4 position = (float4)((float)x/dim, (float)y/dim, (float)z/dim, 0.0);
+    float4 sample = (position + bias) * scale;
+
+	float value = ridgedmultifractal3d(sample, scale.x, lacunarity, increment, octaves);
+
+	float4 result = (float4)(value, value, value, 1.0f) * amplitude;
+
+    output[id] = tonemap(result).x;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
