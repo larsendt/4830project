@@ -725,18 +725,19 @@ GradientNoiseArray2d(
 }
 
 __kernel void 
-GradientNoiseArray3dSlice(	
-	__global uchar4 **output,
+GradientNoiseArray3d(	
+	__global uchar4 *output,
 	const float4 bias, 
 	const float4 scale,
 	const float amplitude,
-	const float slice) 
+	int dim) 
 {
-	int2 coord = (int2)(get_global_id(0), get_global_id(1));
+	int id = get_global_id(0);
+	int x = id/(dim*dim);
+	int y = (id%(dim*dim))/dim;
+	int z = (id%(dim*dim))%dim;
 
-	int2 size = (int2)(get_global_size(0), get_global_size(1));
-
-	float4 position = (float4)((coord.x / (float)size.x), (coord.y / (float)size.y), slice, 0.0);
+	float4 position = (float4)(x, y, z, 0.0);
 	
     float4 sample = (position + bias) * scale;
    
