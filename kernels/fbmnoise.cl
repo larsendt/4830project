@@ -56,8 +56,8 @@
 #define ONE_F1                 (1.0f)
 #define ZERO_F1                (0.0f)
 
-static __constant float4 ZERO_F4 = (float4)(0.0f, 0.0f, 0.0f, 0.0f);
-static __constant float4 ONE_F4 = (float4)(1.0f, 1.0f, 1.0f, 1.0f);
+__constant float4 ZERO_F4 = (float4)(0.0f, 0.0f, 0.0f, 0.0f);
+__constant float4 ONE_F4 = (float4)(1.0f, 1.0f, 1.0f, 1.0f);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

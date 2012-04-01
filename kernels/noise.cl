@@ -58,8 +58,8 @@
 
 #define USE_IMAGES_FOR_RESULTS (0)  // NOTE: It may be faster to use buffers instead of images
 
-static __constant float4 ZERO_F4 = (float4)(0.0f, 0.0f, 0.0f, 0.0f);
-static __constant float4 ONE_F4 = (float4)(1.0f, 1.0f, 1.0f, 1.0f);
+__constant float4 ZERO_F4 = (float4)(0.0f, 0.0f, 0.0f, 0.0f);
+__constant float4 ONE_F4 = (float4)(1.0f, 1.0f, 1.0f, 1.0f);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
