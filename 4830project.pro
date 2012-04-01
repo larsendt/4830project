@@ -6,6 +6,7 @@ TEMPLATE = app
 TARGET = 
 DEPENDPATH += . src
 INCLUDEPATH += . /usr/local/cuda/include/
+INCLUDEPATH += /opt/AMDAPP/include/
 CONFIG -= qt
 CONFIG += debug
 CFLAGS += -Wall -Wextra
