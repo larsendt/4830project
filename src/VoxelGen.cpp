@@ -34,7 +34,7 @@ void VoxelGen::set3DNoiseData(unsigned char* data, int dim, float spacing)
 		{
 			for(int k = 0; k < dim; k++)
 			{
-				if(data[index] > 128)
+				if(data[index] >= 128)
 				{
 					pos = new COORD3D;
 					pos->a = i*spacing;

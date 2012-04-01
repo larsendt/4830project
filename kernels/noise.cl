@@ -726,7 +726,7 @@ GradientNoiseArray2d(
 
 __kernel void 
 GradientNoiseArray3d(	
-	__global uchar4 *output,
+	__global uchar *output,
 	const float4 bias, 
 	const float4 scale,
 	const float amplitude,
@@ -737,7 +737,7 @@ GradientNoiseArray3d(
 	int y = (id%(dim*dim))/dim;
 	int z = (id%(dim*dim))%dim;
 
-	float4 position = (float4)(x, y, z, 0.0);
+	float4 position = (float4)((float)x/dim, (float)y/dim, (float)z/dim, 0.0);
 	
     float4 sample = (position + bias) * scale;
    
@@ -745,8 +745,7 @@ GradientNoiseArray3d(
     
 	float4 result = (float4)(value, value, value, 1.0f) * amplitude;
 
-    uint index = coord.y * size.x + coord.x;
-    output[index][0] = tonemap(result);
+    output[id] = tonemap(result).x;
 }
 
 

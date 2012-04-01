@@ -43,7 +43,7 @@ void GLEngine::initGL(int argc, char** argv)
 	m_mouseLastY = 0;
 	m_scale = 1.0;
 	
-	int d = 64;
+	int d = 32;
 	int index = 0;
 	unsigned char* noisedata = new unsigned char[d*d*d];
 	

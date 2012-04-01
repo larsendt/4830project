@@ -33,7 +33,7 @@ class OCLNoise
 		OCLKernel* m_turbulenceKernel;
 		OCLKernel* m_monoFractalKernel;
 		OCLKernel* m_multiFractalKernel;
-		OCLKernel* m_gradient3dSliceKernel;
+		OCLKernel* m_gradient3dKernel;
 };
 
 #endif
