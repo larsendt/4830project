@@ -7,7 +7,7 @@
 #include "Texture.h"
 #include "Types.h"
 #include "VoxelGen.h"
-#include "OCLNoise.h"
+#include "OCL3DFBMNoise.h"
 
 
 GLEngine::GLEngine(int argc, char** argv)
@@ -47,8 +47,8 @@ void GLEngine::initGL(int argc, char** argv)
 	int index = 0;
 	unsigned char* noisedata = new unsigned char[d*d*d];
 	
-	OCLNoise* noise = new OCLNoise();
-	if(!noise->noise3D(FBM, d, noisedata))
+	OCL3DFBMNoise* noise = new OCL3DFBMNoise();
+	if(!noise->noise(d, noisedata))
 	{
 		fprintf(stderr, "Error: Noise generation borked\n");
 		exit(EXIT_FAILURE);
@@ -57,8 +57,8 @@ void GLEngine::initGL(int argc, char** argv)
 	VoxelGen* vg = new VoxelGen();
 	vg->set3DNoiseData(noisedata, d, 0.01);
 	
-	m_svr = new SimpleVoxelRenderer();
-	m_svr->setVoxelData(vg->voxelData(), vg->voxelCount());
+	m_smc = new SoftwareMarchingCubes();
+	m_smc->setVoxelData(vg->voxelData(), vg->voxelCount());
 	
 	delete[] noisedata;
 	delete noise;
@@ -138,7 +138,7 @@ void GLEngine::drawScene()
     
     glTranslatef(-0.5, -0.5, -0.5);
 	
-	m_svr->draw();
+	m_smc->draw();
 	
 }
 

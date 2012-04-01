@@ -3,7 +3,7 @@
 
 #include <SFML/Window.hpp>
 #include <vector>
-#include "SimpleVoxelRenderer.h"
+#include "SoftwareMarchingCubes.h"
 
 class GLEngine
 {
@@ -22,7 +22,7 @@ class GLEngine
 	
 		sf::Window* m_window;
 		sf::Clock* m_clock;
-		SimpleVoxelRenderer* m_svr;
+		SoftwareMarchingCubes* m_smc;
 
 		float m_updateRate;
 		float m_aspectRatio;
