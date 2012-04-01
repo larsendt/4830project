@@ -1,7 +1,6 @@
 #ifndef SOFTWARE_MARCHING_CUBES_H
 #define SOFTWARE_MARCHING_CUBES_H
 
-
 #include "Types.h"
 #include "VertexBufferObject.h"
 
@@ -10,12 +9,14 @@ class SoftwareMarchingCubes
 	public:
 		SoftwareMarchingCubes();
 		~SoftwareMarchingCubes();
-		void setVoxelData(VOXEL* voxels, int count);
+		void setNoiseData(unsigned char* noise, int dim);
 		void draw();
 	
 	private:
+		int index1D(int x, int y, int z);
+		
 		VertexBufferObject* m_vbo;
-		int m_voxelCount;
+		int m_dim;
 };
 
 #endif

@@ -54,15 +54,11 @@ void GLEngine::initGL(int argc, char** argv)
 		exit(EXIT_FAILURE);
 	}
 	
-	VoxelGen* vg = new VoxelGen();
-	vg->set3DNoiseData(noisedata, d, 0.01);
-	
 	m_smc = new SoftwareMarchingCubes();
-	m_smc->setVoxelData(vg->voxelData(), vg->voxelCount());
+	m_smc->setNoiseData(noisedata, d);
 	
 	delete[] noisedata;
 	delete noise;
-	delete vg;
 	
 	m_updateRate = 1.0/60.0;
 	resize(m_width, m_height);
