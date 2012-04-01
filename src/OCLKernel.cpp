@@ -136,7 +136,7 @@ bool OCLKernel::run(int arg_count, OCLArgument* args,
 		}
 		else if(buffers[i].buffer_type == READ)
 		{
-			cl_buffers[i] = clCreateBuffer(m_ctx, CL_MEM_READ_ONLY, buffers[i].byte_size, buffers[i].data, &err);
+			cl_buffers[i] = clCreateBuffer(m_ctx, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, buffers[i].byte_size, buffers[i].data, &err);
 			if(!cl_buffers[i] || err != CL_SUCCESS)
 			{
 				fprintf(stderr, "Error: Failed to allocate device memory for buffer %d (READ)!\n", i);
