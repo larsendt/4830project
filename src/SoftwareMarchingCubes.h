@@ -9,7 +9,7 @@ class SoftwareMarchingCubes
 	public:
 		SoftwareMarchingCubes();
 		~SoftwareMarchingCubes();
-		void setNoiseData(unsigned char* noise, int dim);
+		void setNoiseData(unsigned char* noise, int dim, float spacing);
 		void draw();
 	
 	private:

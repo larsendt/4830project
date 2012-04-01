@@ -43,7 +43,8 @@ void GLEngine::initGL(int argc, char** argv)
 	m_mouseLastY = 0;
 	m_scale = 1.0;
 	
-	int d = 128;
+	int d = 256;
+	float s = 1.0/d;
 	int index = 0;
 	unsigned char* noisedata = new unsigned char[d*d*d];
 	
@@ -55,7 +56,7 @@ void GLEngine::initGL(int argc, char** argv)
 	}
 	
 	m_smc = new SoftwareMarchingCubes();
-	m_smc->setNoiseData(noisedata, d);
+	m_smc->setNoiseData(noisedata, d, s);
 	
 	delete[] noisedata;
 	delete noise;

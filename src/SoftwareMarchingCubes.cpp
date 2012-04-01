@@ -12,7 +12,7 @@ SoftwareMarchingCubes::~SoftwareMarchingCubes()
 	delete m_vbo;
 }
 
-void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim)
+void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float spacing)
 {
 	m_dim = dim;
 	VERTEX* vertices = new VERTEX[dim*dim*dim];
@@ -47,9 +47,9 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim)
 				if(accum != 0xffffffff && accum != 0x0)
 				{
 					COORD3D* c = new COORD3D;
-					c->a = x*0.01;
-					c->b = y*0.01;
-					c->c = z*0.01;
+					c->a = x*spacing;
+					c->b = y*spacing;
+					c->c = z*spacing;
 					
 					NORMAL* n = new NORMAL;
 					n->a = 1;
