@@ -43,22 +43,26 @@ void GLEngine::initGL(int argc, char** argv)
 	m_mouseLastY = 0;
 	m_scale = 1.0;
 	
-	int d = 32;
+	int d = 128;
 	int index = 0;
 	unsigned char* noisedata = new unsigned char[d*d*d];
 	
 	OCLNoise* noise = new OCLNoise();
-	if(!noise->noise3D(GRADIENT, d, noisedata))
+	if(!noise->noise3D(FBM, d, noisedata))
 	{
 		fprintf(stderr, "Error: Noise generation borked\n");
 		exit(EXIT_FAILURE);
 	}
 	
 	VoxelGen* vg = new VoxelGen();
-	vg->set3DNoiseData(noisedata, d, 0.02);
+	vg->set3DNoiseData(noisedata, d, 0.01);
 	
 	m_svr = new SimpleVoxelRenderer();
 	m_svr->setVoxelData(vg->voxelData(), vg->voxelCount());
+	
+	delete[] noisedata;
+	delete noise;
+	delete vg;
 	
 	m_updateRate = 1.0/60.0;
 	resize(m_width, m_height);
@@ -172,6 +176,6 @@ void GLEngine::resize(int width, int height)
 
 void GLEngine::regenNoise()
 {
-
+	
 }
 

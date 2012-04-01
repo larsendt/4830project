@@ -1,6 +1,7 @@
 #include "Util.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define INIT_SZ 4096
 
@@ -20,6 +21,7 @@ char* readFile(const char* filename)
 		fclose(f);		
 	}
     
+    text[strlen(text)-1] = '\0';
     return text;
 }
 

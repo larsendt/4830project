@@ -777,6 +777,36 @@ FBMNoiseArray2d(
 }
 
 __kernel void 
+FBMNoiseArray3d(	
+	__global uchar *output,
+	const float4 bias, 
+	const float4 scale,
+	const float amplitude,
+	int dim) 
+{
+	int id = get_global_id(0);
+	int x = id/(dim*dim);
+	int y = (id%(dim*dim))/dim;
+	int z = (id%(dim*dim))%dim;
+
+	float4 position = (float4)((float)x/dim, (float)y/dim, (float)z/dim, 0.0);
+    float4 sample = (position + bias) * scale;
+   
+    float value;
+    float4 result = (float4) 0;
+    
+    for(int i = 0; i < 4; i++)
+    {
+    	float mult = pow(2.0, i);
+    	sample = (position + bias) * ((float4)(mult, mult, mult, mult)) * scale;
+    	value = ugnoise3d(sample) * (amplitude / (mult * 2.0));
+    	result = result + (float4)(value, value, value, 1.0f);
+   	}
+   	
+    output[id] = tonemap(result).x;
+}
+
+__kernel void 
 MonoFractalArray2d(
 	__global uchar4 *output,
 	const float2 bias, 

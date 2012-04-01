@@ -27,6 +27,7 @@ class OCLNoise
 		bool fbmNoise2D(int dim, unsigned char* data);
 
 		bool gradientNoise3D(int dim, unsigned char* data);
+		bool fbmNoise3D(int dim, unsigned char* data);
 		
 		OCLKernel* m_gradientKernel;
 		OCLKernel* m_fbmKernel;
@@ -34,6 +35,7 @@ class OCLNoise
 		OCLKernel* m_monoFractalKernel;
 		OCLKernel* m_multiFractalKernel;
 		OCLKernel* m_gradient3dKernel;
+		OCLKernel* m_fbm3dKernel;
 };
 
 #endif
