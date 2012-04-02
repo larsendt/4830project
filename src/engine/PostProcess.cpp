@@ -4,7 +4,8 @@ void PostProcess::init(int width, int height){
 
 	W = width;
 	H = height;
-	glActiveTexture(GL_TEXTURE0);
+	
+	// Initialize frame texture
 	
 	glGenTextures(1, &fbo_texture);
 	glBindTexture(GL_TEXTURE_2D, fbo_texture);	
@@ -14,25 +15,31 @@ void PostProcess::init(int width, int height){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	
-	glActiveTexture(GL_TEXTURE1);
+	
+	// Initialize depth texture
+	
 	glGenTextures(1, &fbo_depth_tex);
 	glBindTexture(GL_TEXTURE_2D, fbo_depth_tex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);		
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32,width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32,width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	
 	
-	glGenRenderbuffers(1, &rbo_depth);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	//glGenRenderbuffers(1, &rbo_depth);
+	//glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
+	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+	
 	
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_texture, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, fbo_depth_tex, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo_depth);
+	//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo_depth);
+	
+	//glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	
 	GLenum status;
 	if ((status = glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE){
@@ -86,6 +93,7 @@ void PostProcess::draw(){
 	glUseProgram(fbo_shader->program);
 	glUniform1f(dxloc,dX);
     glUniform1f(dyloc,dY);
+    
     glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, fbo_texture);
 	glUniform1i(uniform_fbo_texture, 0);
@@ -93,6 +101,7 @@ void PostProcess::draw(){
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, fbo_depth_tex);
 	glUniform1i(uniform_fbo_depth_tex, 1);
+	
 	glEnableVertexAttribArray(attribute_v_coord_postproc);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_fbo_vertices);
@@ -112,12 +121,18 @@ void PostProcess::resize(int width, int height)
 {
 	glBindTexture(GL_TEXTURE_2D, fbo_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	
+	glBindTexture(GL_TEXTURE_2D, fbo_depth_tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32,width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	
 	glBindTexture(GL_TEXTURE_2D, 0);
+	
 	W = width;
 	H = height;
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	
+	//glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
+	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+	//glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
 void PostProcess::startDraw(){

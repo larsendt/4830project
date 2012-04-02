@@ -10,17 +10,16 @@ Heightmap::Heightmap(int width, int height){
 }
 
 float Heightmap::heightFunction(float x, float z){
-	float val = 20*perlin->Get3D(x/200.0,z/200.0,100/200.0);
+	float val = perlin->Get3D(x/100.0,z/100.0,100/2000.0);
 	
-	val = val*val*val;
-	val += 10* perlin->Get3D(x/20.0,z/22.0, 200/200.0);
-	val += 30* perlin->Get3D(x/400.0,z/400.0, -200/200.0);
-	if (val > 30) val = 30 + .1*(val - 30);
+	val *= 100;
+	if (val < 0) val = 0;
+	if (val > 10) val = 10;
 	return val;
 }
 
 void Heightmap::create(){
-	perlin = new Perlin(1, 2, 1, 0);
+	perlin = new Perlin(3, 2, 1, 0);
 	
 	vertices = new VERT**[h_height];
 	

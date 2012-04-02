@@ -208,7 +208,7 @@ void IEngine::resize(int width, int height)
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0,m_width,1,2000);
+	gluPerspective(45.0,m_width,1,1000);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
