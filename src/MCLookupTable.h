@@ -23,6 +23,7 @@ float MCVertices[12][3] = {
 // first index is number of vertices
 // encoded as c strings, so last number must be zero
 // indices are 1-indexed, so subtract one when getting the appropriate vertex (since zero is used to terminate)
+// TODO: these are all out of order... dammit...
 char MCIndices[256][13] = {
 	{ 0}, // no vertices set
 	{ 3,  2,  1,  0}, // vx 0 is set
@@ -33,13 +34,13 @@ char MCIndices[256][13] = {
 	{11,  8,  7,  0}, // 5
 	{12,  9,  5,  0}, // 6
 	{12, 11, 10,  0}, // 7
-	{2,  4,  3,  5,  3,  4,  0}, // 0 1
-	{1,  3,  7,  7,  6,  1,  0}, // 0 2
-	{1,  2,  8,  8,  9,  1,  0}, // 0 3
-	{0,  6, 10, 10,  5,  0,  0}, // 1 4
-	{1,  4, 12, 12,  9,  1,  0}, // 1 6
-	{ 3,  2,  1,  0}, // placeholder
-	{ 3,  2,  1,  0}, // placeholder
+	{ 2,  4,  3,  5,  3,  4,  0}, // 0 1
+	{ 1,  3,  7,  7,  6,  1,  0}, // 0 2
+	{ 1,  2,  8,  8,  9,  1,  0}, // 0 3
+	{ 0,  6, 10, 10,  5,  0,  0}, // 1 4
+	{ 1,  4, 12, 12,  9,  1,  0}, // 1 6
+	{ 6, 11,  8,  8,  2,  6,  0}, // 2 5
+	{ 2,  7, 10, 10,  4,  2,  0}, // 2 4
 	{ 3,  2,  1,  0}, // placeholder
 	{ 3,  2,  1,  0}, // placeholder
 	{ 3,  2,  1,  0}, // placeholder
