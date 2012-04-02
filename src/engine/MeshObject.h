@@ -6,20 +6,28 @@
 #ifndef MESHOBJECT
 #define MESHOBJECT
 
+#define BUFFER_OFFSET(i) ((char*) NULL + i)
+
 struct vbo_data{
 
 	float* verts;
-	int v_count;
 	float* norms;
-	int n_count;
 	float* yztex;
-	int yz_count;
 	float* xztex;
-	int xz_count;
 	float* xytex;
-	int xy_count;
+	int v_count;
+	
 	unsigned short * vorder;
 	int i_count;
+};
+
+struct vbo_package{
+	float x, y, z;        //Vertex
+	float nx, ny, nz;     //Normal
+	float s0, t0;         //Texcoord0
+	float s1, t1;         //Texcoord1
+	float s2, t2;         //Texcoord2
+	float padding[4]; // 32-byte alignment for ATI
 };
 
 class MeshObject{
@@ -27,27 +35,21 @@ class MeshObject{
 		MeshObject();
 		~MeshObject();
 		
-		void set(vbo_data * cData);
+		void set(vbo_data * vData);
 		void setShader(unsigned int program);
 		void draw();
 		
 		unsigned int c_shader;
 	private:
 		
-		int x;
-		int y;
-		int z;
+		unsigned int vbo_packages;
 		
-		unsigned int vbo_vertices;
 		unsigned int att_vertex;
-		unsigned int vbo_normals;
 		unsigned int att_normal;
-		unsigned int vbo_tex_yz;
 		unsigned int att_tex_yz;
-		unsigned int vbo_tex_xz;
 		unsigned int att_tex_xz;
-		unsigned int vbo_tex_xy;
 		unsigned int att_tex_xy;
+		
 		unsigned int ibo_elements;
 };
 

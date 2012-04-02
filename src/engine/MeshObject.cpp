@@ -1,66 +1,84 @@
 #include "MeshObject.h"
 
 MeshObject::MeshObject(){
-	//printf("prev: %s\n", gluErrorString(glGetError()));
-	glGenBuffers(1, &vbo_vertices);
-	//printf("verts: %s\n", gluErrorString(glGetError()));
-	glGenBuffers(1, &vbo_normals);
-	//printf("norms: %s\n", gluErrorString(glGetError()));
-	glGenBuffers(1, &vbo_tex_yz);
-	//printf("yz: %s\n", gluErrorString(glGetError()));
-	glGenBuffers(1, &vbo_tex_xy);
-	//printf("xy: %s\n", gluErrorString(glGetError()));
-	glGenBuffers(1, &vbo_tex_xz);
-	//printf("xz: %s\n", gluErrorString(glGetError()));
+
+	glGenBuffers(1, &vbo_packages);
+
 	glGenBuffers(1, &ibo_elements);
-	//printf("ibos: %s\n", gluErrorString(glGetError()));
 	
 }
 
 MeshObject::~MeshObject(){
 
-	glDeleteBuffers(1, &vbo_vertices);
-	glDeleteBuffers(1, &vbo_normals);
-	glDeleteBuffers(1, &vbo_tex_yz);
-	glDeleteBuffers(1, &vbo_tex_xz);
-	glDeleteBuffers(1, &vbo_tex_xy);
+	glDeleteBuffers(1, &vbo_packages);
+
 	glDeleteBuffers(1, &ibo_elements);
 
 }
 
-void MeshObject::set(vbo_data * cData){
+void MeshObject::set(vbo_data * vData){
 
-	//printf("prev: %s\n", gluErrorString(glGetError()));
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);
-	glBufferData(GL_ARRAY_BUFFER, cData->v_count*sizeof(float), cData->verts, GL_STATIC_DRAW);
+	int count = vData->v_count/3;
+	vbo_package * packs = new vbo_package[count];
+	int vc = 0;
+	int nc = 0;
+	int xyc = 0;
+	int xzc = 0;
+	int yzc = 0;
 	
-	//printf("verts: %s\n", gluErrorString(glGetError()));
+	float * dVerts = vData->verts;
+	float * dNorms = vData->norms;
+	float * dXY = vData->yztex;
+	float * dXZ = vData->xztex;
+	float * dYZ = vData->yztex;
 	
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
-	glBufferData(GL_ARRAY_BUFFER, cData->n_count*sizeof(float), cData->norms, GL_STATIC_DRAW);
+	unsigned int offsetInByte;
 	
-	//printf("norms: %s\n", gluErrorString(glGetError()));
-	
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_tex_yz);
-	glBufferData(GL_ARRAY_BUFFER, cData->yz_count*sizeof(float), cData->yztex, GL_STATIC_DRAW);
-	
-	//printf("yz: %s\n", gluErrorString(glGetError()));
-	
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_tex_xz);
-	glBufferData(GL_ARRAY_BUFFER, cData->xz_count*sizeof(float), cData->xztex, GL_STATIC_DRAW);
-	
-	//printf("xz: %s\n", gluErrorString(glGetError()));
-	
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_tex_xy);
-	glBufferData(GL_ARRAY_BUFFER, cData->xy_count*sizeof(float), cData->xytex, GL_STATIC_DRAW);
-	
-	//printf("xy: %s\n", gluErrorString(glGetError()));
+	for (int i = 0; i < count; i++){
+		vbo_package * p = &packs[i];
+		p->x = dVerts[vc];
+		vc++;
+		p->y = dVerts[vc];
+		vc++;
+		p->z = dVerts[vc];
+		vc++;
+		
+		p->nx = dNorms[nc];
+		nc++;
+		p->ny = dNorms[nc];
+		nc++;
+		p->nz = dNorms[nc];
+		nc++;
+		
+		p->s0 = dXY[xyc];
+		xyc++;
+		p->t0 = dXY[xyc];
+		xyc++;
+		
+		p->s1 = dXZ[xzc];
+		xzc++;
+		p->t1 = dXZ[xzc];
+		xzc++;
+		
+		p->s2 = dXZ[yzc];
+		yzc++;
+		p->t2 = dXZ[yzc];
+		yzc++;
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_packages);
+	glBufferData(GL_ARRAY_BUFFER,
+					count*sizeof(vbo_package), // size in bytes
+					&packs[0].x, // address of first element
+					GL_STATIC_DRAW); // derp a herp derp derp
+					
+	unsigned short * indices = vData->vorder;
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, cData->i_count*sizeof(unsigned short), cData->vorder, GL_STATIC_DRAW);
-	
-	//printf("ibo: %s\n", gluErrorString(glGetError()));
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
+					vData->i_count*sizeof(unsigned short),
+					indices,
+					GL_STATIC_DRAW);
+
 	
 	const char* attribute_name;
 	attribute_name = "vertex";
@@ -112,66 +130,66 @@ void MeshObject::draw(){
 	//printf("prev: %s\n", gluErrorString(glGetError()));
 	
 	glEnableVertexAttribArray(att_vertex);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_packages);
 	glVertexAttribPointer(
 		att_vertex, // attribute
 		3,								 // number of elements per vertex, here (XYZ)
 		GL_FLOAT,					// the type of each element
 		GL_FALSE,					// take our values as-is
-		0,								 // no extra data between each position
-		0									// offset of first element
+		sizeof(vbo_package),								 // no extra data between each position
+		BUFFER_OFFSET(0)									// offset of first element
 	);
 	
 	//printf("vert: %s\n", gluErrorString(glGetError()));
 	
 	glEnableVertexAttribArray(att_normal);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_packages);
 	glVertexAttribPointer(
 		att_normal, // attribute
 		3,
 		GL_FLOAT,
 		GL_FALSE,
-		0,		
-		0		
+		sizeof(vbo_package),		
+		BUFFER_OFFSET(12)		
 	);
 	
 	//printf("norms: %s\n", gluErrorString(glGetError()));
 	
 	glEnableVertexAttribArray(att_tex_yz);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_tex_yz);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_packages);
 	glVertexAttribPointer(
 		att_tex_yz, // attribute
 		2,
 		GL_FLOAT,
 		GL_FALSE,
-		0,		
-		0		
+		sizeof(vbo_package),		
+		BUFFER_OFFSET(24)			
 	);
 	
 	//printf("yz: %s\n", gluErrorString(glGetError()));
 	
 	glEnableVertexAttribArray(att_tex_xz);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_tex_xz);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_packages);
 	glVertexAttribPointer(
 		att_tex_xz, // attribute
 		2,
 		GL_FLOAT,
 		GL_FALSE,
-		0,		
-		0		
+		sizeof(vbo_package),		
+		BUFFER_OFFSET(32)			
 	);
 	
 	//printf("xz: %s\n", gluErrorString(glGetError()));
 	
 	glEnableVertexAttribArray(att_tex_xy);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_tex_xy);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_packages);
 	glVertexAttribPointer(
 		att_tex_xy, // attribute
 		2,
 		GL_FLOAT,
 		GL_FALSE,
-		0,		
-		0		
+		sizeof(vbo_package),		
+		BUFFER_OFFSET(40)		
 	);
 	
 	//printf("xy: %s\n", gluErrorString(glGetError()));

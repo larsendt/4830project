@@ -255,28 +255,17 @@ MeshObject * Heightmap::convertToMesh(){
 	}
 	
 	vbo_data * vData = new vbo_data;
-	
 	vData->verts = verts;
+	vData->yztex = yzcoords;
+	vData->xztex = xzcoords;
+	vData->xztex = xzcoords;
+	vData->norms = norms;
 	vData->v_count = v_count;
 	
-	vData->yztex = yzcoords;
-	vData->yz_count = yzcount;
-	
-	vData->xztex = xzcoords;
-	vData->xz_count = xzcount;
-	
-	vData->xztex = xzcoords;
-	vData->xz_count = xzcount;
-	
-	vData->norms = norms;
-	vData->n_count = n_count;
-	
 	vData->vorder = vorder;
-	vData->i_count = i_count;
-
-	mo->c_shader = shader;
 	
+	vData->i_count = i_count;
+	mo->c_shader = shader;
 	mo->set(vData);
-
 	return mo;
 }
