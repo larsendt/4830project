@@ -1,28 +1,17 @@
 #include "Util.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
+#include <fstream>
+#include <streambuf>
 
 #define INIT_SZ 4096
 
-char* readFile(const char* filename)
+std::string readFile(const char* filename)
 {
-	FILE* f = fopen(filename, "r");
-	char* text = NULL;
-	
-	if(f)
-	{
-		fseek(f, 0, SEEK_END);
-		long pos = ftell(f);
-		fseek(f, 0, SEEK_SET);
-		
-		text = (char*)malloc(pos * sizeof(char));
-		fread(text, pos, 1, f);
-		fclose(f);		
-	}
-    
-    text[strlen(text)-1] = '\0';
-    return text;
+	std::ifstream t(filename);
+	std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+	return str;
 }
 
 void print_cl_err(int err_code)

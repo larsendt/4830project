@@ -58,7 +58,7 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 		exit(EXIT_FAILURE);
 	}
 	
-	m_kernelSource = readFile(m_kernelPath);
+	m_kernelSource = readFile(m_kernelPath).c_str();
 	if(!m_kernelSource)
 	{
 		fprintf(stderr, "Error: Failed to read kernel file %s!\n", m_kernelPath);
