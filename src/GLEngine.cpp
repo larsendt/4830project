@@ -44,7 +44,7 @@ void GLEngine::initGL(int argc, char** argv)
 	m_scale = 1.0;
 	
 	m_smc = new SoftwareMarchingCubes();
-	m_dim = 256;
+	m_dim = 32;
 	genNoise(m_dim);
 	
 	m_updateRate = 1.0/60.0;

@@ -1,10 +1,13 @@
 #include "SoftwareMarchingCubes.h"
 #include <stdio.h>
+#include <string.h>
+
+#include "MCLookupTable.h"
 
 
 SoftwareMarchingCubes::SoftwareMarchingCubes()
 {
-	m_vbo = new VertexBufferObject(GL_POINTS);
+	m_vbo = new VertexBufferObject(GL_TRIANGLES);
 }
 
 SoftwareMarchingCubes::~SoftwareMarchingCubes()
@@ -15,8 +18,11 @@ SoftwareMarchingCubes::~SoftwareMarchingCubes()
 void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float spacing)
 {
 	m_dim = dim;
-	VERTEX* vertices = new VERTEX[dim*dim*dim];
-	GLuint* indices = new GLuint[dim*dim*dim];
+	// maximum possible is dim*dim*dim voxels times a maximum of 12 vertices per voxel
+	// TODO: we'll never hit this limit, so set things up to use a smaller inital amount and expand if necessary
+	int max_vxs = dim*dim*dim*12;
+	VERTEX* vertices = new VERTEX[max_vxs];
+	GLuint* indices = new GLuint[max_vxs];
 	int vx_count = 0;
 	
 	for(int x = 0; x < dim-1; x++)
@@ -34,7 +40,8 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 				unsigned int i6 = index1D(x+1, y, z+1);
 				unsigned int i7 = index1D(x+1, y+1, z+1);
 				
-				char accum = 0x0;
+				unsigned char accum = 0x0;
+				
 				accum |= (noise[i0] >= 128) << 0;
 				accum |= (noise[i1] >= 128) << 1;
 				accum |= (noise[i2] >= 128) << 2;
@@ -44,25 +51,31 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 				accum |= (noise[i6] >= 128) << 6;
 				accum |= (noise[i7] >= 128) << 7;
 				
-				if(accum != 0xffffffff && accum != 0x0)
+				if(accum != 0xff && accum != 0x0)
 				{
-					COORD3D* c = new COORD3D;
-					c->a = x*spacing;
-					c->b = y*spacing;
-					c->c = z*spacing;
+					char* ids = MCIndices[accum];
+					int idcount = strlen(ids);
 					
-					NORMAL* n = new NORMAL;
-					n->a = 1;
-					n->b = 1;
-					n->c = 1;
+					for(int i = 0; i < idcount; i++)
+					{
+						COORD3D* c = new COORD3D;
+						c->a = (x*spacing) + (MCGetVertex(ids[i])[0] * spacing);
+						c->b = (y*spacing) + (MCGetVertex(ids[i])[1] * spacing);
+						c->c = (z*spacing) + (MCGetVertex(ids[i])[2] * spacing);
 					
-					VERTEX v;
-					v.pos = c;
-					v.norm = n;
+						NORMAL* n = new NORMAL;
+						n->a = 1;
+						n->b = 1;
+						n->c = 1;
 					
-					vertices[vx_count] = v;
-					indices[vx_count] = vx_count;
-					vx_count += 1;
+						VERTEX v;
+						v.pos = c;
+						v.norm = n;
+					
+						vertices[vx_count] = v;
+						indices[vx_count] = vx_count;
+						vx_count += 1;
+					}
 				}
 			}
 		}
@@ -70,7 +83,7 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 	
 	m_vbo->setData(vx_count, vertices, indices);
 	
-	printf("SoftwareMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, m_dim*m_dim*m_dim, ((float)vx_count/(m_dim*m_dim*m_dim))*100);
+	printf("SoftwareMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, max_vxs, ((float)vx_count/max_vxs)*100);
 	
 	for(int i = 0; i < vx_count; i++)
 	{
