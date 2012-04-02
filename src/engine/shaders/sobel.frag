@@ -127,7 +127,7 @@ void main()
    float one = 1.0/13.0;
    float two = 2.0/13.0;
    float ablur = snoise(vec3(f_texcoord.s, f_texcoord.t*time*.05, time*.02));
-   ablur = ablur*.003;
+   ablur = ablur*.01;
    vec4 blur = one*sample(-dX+ablur,+dY+ablur) + two*sample(0.0+ablur,+dY+ablur) + one*sample(+dX+ablur,+dY+ablur)
                 + two*sample(-dX+ablur,0.0+ablur) + one*sample(0.0+ablur,0.0+ablur) + two*sample(+dX+ablur,0.0+ablur)
                 + one*sample(-dX+ablur,-dY+ablur) + two*sample(0.0+ablur,-dY+ablur) + one*sample(+dX+ablur,-dY+ablur);

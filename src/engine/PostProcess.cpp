@@ -2,6 +2,8 @@
 
 void PostProcess::init(int width, int height){
 
+	time = 0.0;
+
 	W = width;
 	H = height;
 	
@@ -81,9 +83,14 @@ void PostProcess::init(int width, int height){
 	uniform_name = "dY";
 	dyloc = glGetUniformLocation(fbo_shader->program, uniform_name);
 	
+	uniform_name = "time";
+	timeloc = glGetUniformLocation(fbo_shader->program, uniform_name);
+	
 }
 
 void PostProcess::draw(){
+	
+	time += .1;
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -93,6 +100,7 @@ void PostProcess::draw(){
 	glUseProgram(fbo_shader->program);
 	glUniform1f(dxloc,dX);
     glUniform1f(dyloc,dY);
+    glUniform1f(timeloc, time);
     
     glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, fbo_texture);
