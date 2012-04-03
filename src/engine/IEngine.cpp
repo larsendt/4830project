@@ -15,7 +15,7 @@ IEngine::IEngine(int argc, char** argv)
 	
 	// TEST STUFF
 	Shader * fbo_shader = new Shader();
-	fbo_shader->load((char*)"shaders/pp.vert",(char*)"shaders/sobel.frag");
+	fbo_shader->load((char*)"shaders/pp.vert",(char*)"shaders/heat.frag");
 	p.setShader(fbo_shader);
 	p.init(m_window->GetWidth(), m_window->GetHeight());
 	
