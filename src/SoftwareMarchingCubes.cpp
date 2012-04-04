@@ -1,6 +1,7 @@
 #include "SoftwareMarchingCubes.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "MCLookupTable.h"
 
@@ -37,14 +38,13 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 	cube[index].a = 0; cube[index].b = 1; cube[index].c = 1;
 	
 	m_dim = dim;
-	// maximum possible is dim*dim*dim voxels times a maximum of 12 vertices per voxel
-	// TODO: we'll never hit this limit, so set things up to use a smaller inital amount and expand if necessary
-	int max_vxs = dim*dim*dim*12;
-	VERTEX* vertices = new VERTEX[max_vxs];
-	GLuint* indices = new GLuint[max_vxs];
-	int vx_count = 0;
 	
-	COORD3D vertlist[12];
+	// we start with 512 vertices and allocate more if necessary
+	int max_vxs = 512;
+	VERTEX* vertices = (VERTEX*) malloc(max_vxs * sizeof(*vertices));
+	GLuint* indices = (GLuint*) malloc(max_vxs * sizeof(*indices)); 
+	int vx_count = 0;
+	bool color_flag = false;
 	
 	for(int x = 0; x < dim-1; x++)
 	{
@@ -52,107 +52,68 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 		{
 			for(int z = 0; z < dim-1; z++)
 			{
-				unsigned int i0 = index1D(x+cube[0].a, y+cube[0].b, z+cube[0].c);
-				unsigned int i1 = index1D(x+cube[1].a, y+cube[1].b, z+cube[1].c);
-				unsigned int i2 = index1D(x+cube[2].a, y+cube[2].b, z+cube[2].c);
-				unsigned int i3 = index1D(x+cube[3].a, y+cube[3].b, z+cube[3].c);
-				unsigned int i4 = index1D(x+cube[4].a, y+cube[4].b, z+cube[4].c);
-				unsigned int i5 = index1D(x+cube[5].a, y+cube[5].b, z+cube[5].c);
-				unsigned int i6 = index1D(x+cube[6].a, y+cube[6].b, z+cube[6].c);
-				unsigned int i7 = index1D(x+cube[7].a, y+cube[7].b, z+cube[7].c);
-				
-				unsigned char n0 = noise[i0];
-				unsigned char n1 = noise[i1];
-				unsigned char n2 = noise[i2];
-				unsigned char n3 = noise[i3];
-				unsigned char n4 = noise[i4];
-				unsigned char n5 = noise[i5];
-				unsigned char n6 = noise[i6];
-				unsigned char n7 = noise[i7];
-				
-				unsigned char accum = 0x0;
-				
+				unsigned char noisevals[8];
+				unsigned int indices1d[8];
 				unsigned int isolevel = 128;
 				unsigned int cubeindex = 0;
-				if (n0 < isolevel) cubeindex |= 1;
-				if (n1 < isolevel) cubeindex |= 2;
-				if (n2 < isolevel) cubeindex |= 4;
-				if (n3 < isolevel) cubeindex |= 8;
-				if (n4 < isolevel) cubeindex |= 16;
-				if (n5 < isolevel) cubeindex |= 32;
-				if (n6 < isolevel) cubeindex |= 64;
-				if (n7 < isolevel) cubeindex |= 128;
 				
-				
-				accum = cubeindex;
-				if(accum != 0xff && accum != 0x0)
+				for(int i = 0; i < 8; i++)
 				{
-					unsigned char* ids = MCIndices[accum];
-					int idcount = numVertsTable[accum];
+					indices1d[i] = index1D(x+cube[i].a, y+cube[i].b, z+cube[i].c);
+					noisevals[i] = noise[indices1d[i]];
 					
-					/////// BOTTOM FOUR //////
-					
-					if (edgeTable[accum] & 1){
-						vertlist[0] = getEdgeVertex(0);
-					}
-					if (edgeTable[accum] & 2){
-						vertlist[1] = getEdgeVertex(1);
-					}
-					if (edgeTable[accum] & 4){
-						vertlist[2] = getEdgeVertex(2);
-					}
-					if (edgeTable[accum] & 8){
-						vertlist[3] = getEdgeVertex(3);
-					}
-					
-					/////// TOP FOUR ///////
-					
-					if (edgeTable[accum] & 16){
-						vertlist[4] = getEdgeVertex(4);
-					}
-					if (edgeTable[accum] & 32){
-						vertlist[5] = getEdgeVertex(5);
-					}
-					if (edgeTable[accum] & 64){
-						vertlist[6] = getEdgeVertex(6);
-					}
-					if (edgeTable[accum] & 128){
-						vertlist[7] = getEdgeVertex(7);
-					}
-					
-					/////// FOUR SIDES //////
-					
-					if (edgeTable[accum] & 256){
-						vertlist[8] = getEdgeVertex(8);
-					}
-					if (edgeTable[accum] & 512){
-						vertlist[9] = getEdgeVertex(9);
-					}
-					if (edgeTable[accum] & 1024){
-						vertlist[10] = getEdgeVertex(10);
-					}
-					if (edgeTable[accum] & 2048){
-						vertlist[11] = getEdgeVertex(11);
-					}
-					for (int i = 0; ids[i]!=255;i+=3){
-						for (int j = 0; j<3; j++){
-							
-							COORD3D* c = new COORD3D;
-							c->a = (x*spacing) + (vertlist[i+j].a * spacing);
-							c->b = (y*spacing) + (vertlist[i+j].b * spacing);
-							c->c = (z*spacing) + (vertlist[i+j].c * spacing);
-							
-							NORMAL* n = new NORMAL;
-							n->a = 1;
-							n->b = 1;
-							n->c = 1;
-					
-							vertices[vx_count].pos = c;
-							vertices[vx_count].norm = n;
-							indices[vx_count] = vx_count;
-							vx_count ++;
+					if(noisevals[i] < isolevel) cubeindex |= (unsigned char)pow(2, i);
+				}
+			
+				if(cubeindex != 0xff && cubeindex != 0x0)
+				{
+					unsigned char* ids = indexTable[cubeindex];
+					int idcount = indexCountTable[cubeindex];
+	
+					for(int i = 0; i < idcount; i++)
+					{
+						COORD3D* c = new COORD3D;
+						//c->a = (x*spacing) + (vertexTable[ids[i]][0]*spacing);
+						//c->b = (y*spacing) + (vertexTable[ids[i]][1]*spacing);
+						//c->c = (z*spacing) + (vertexTable[ids[i]][2]*spacing);
+						
+						int edge0 = edgeMap[ids[i]][0];
+						int edge1 = edgeMap[ids[i]][1];
+						COORD3D temp = vInterpolation(isolevel, cube[edge0], cube[edge1], noisevals[edge0], noisevals[edge1]);
+						
+						c->a = (x*spacing) + (temp.a*spacing);
+						c->b = (y*spacing) + (temp.b*spacing);
+						c->c = (z*spacing) + (temp.c*spacing);
+						
+						NORMAL* n = new NORMAL;
+						n->a = 1;
+						n->b = 1;
+						n->c = 1;
+						
+						COLOR* color = new COLOR;
+						
+						color->r = c->a;
+						color->g = c->b;
+						color->b = c->c;
+						color->a = 1.0;
+				
+						// allocate more memory if necessary
+						if(vx_count == max_vxs)
+						{
+							max_vxs *= 2;
+							vertices = (VERTEX*) realloc(vertices, max_vxs * sizeof(*vertices));
+							indices = (GLuint*) realloc(indices, max_vxs * sizeof(*indices));
 						}
+				
+						vertices[vx_count].pos = c;
+						vertices[vx_count].norm = n;
+						vertices[vx_count].color = color;
+						indices[vx_count] = vx_count;
+						vx_count ++;
 					}
+					
+					
+					color_flag = false;
 				}
 			}
 		}
@@ -160,7 +121,7 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 	
 	m_vbo->setData(vx_count, vertices, indices);
 	
-	printf("SoftwareMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, max_vxs, ((float)vx_count/max_vxs)*100);
+	printf("SoftwareMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, dim*dim*dim*12, ((float)vx_count/(dim*dim*dim*12))*100);
 	
 	for(int i = 0; i < vx_count; i++)
 	{
@@ -168,8 +129,8 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 		delete vertices[i].norm;
 	}
 	
-	delete[] vertices;
-	delete[] indices;
+	free(vertices);
+	free(indices);
 }
 
 void SoftwareMarchingCubes::draw()
@@ -207,12 +168,3 @@ COORD3D SoftwareMarchingCubes::vInterpolation(unsigned int isolevel,
 	return p;
 }
 
-COORD3D SoftwareMarchingCubes::getEdgeVertex(int edgenum){
-
-	COORD3D p;	
-	p.a = MCVertices[edgenum][0];
-	p.b = MCVertices[edgenum][1];
-	p.c = MCVertices[edgenum][2];
-	return p;
-
-}

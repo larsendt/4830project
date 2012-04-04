@@ -11,6 +11,10 @@ struct __internalVertex__ {
 	float nx;
 	float ny;
 	float nz;
+	float r;
+	float g;
+	float b;
+	float a;
 };
 
 VertexBufferObject::VertexBufferObject(GLenum mode)
@@ -42,11 +46,15 @@ void VertexBufferObject::draw()
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glNormalPointer(GL_FLOAT, sizeof(__internalVertex__), BUFFER_OFFSET(sizeof(float) * 3));
 	
+	glEnableClientState(GL_COLOR_ARRAY);
+	glColorPointer(4, GL_FLOAT, sizeof(__internalVertex__), BUFFER_OFFSET(sizeof(float) * 6));
+	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 	glDrawElements(m_mode, m_vertexCount, GL_UNSIGNED_INT, 0);
 	
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 void VertexBufferObject::clear()
@@ -70,6 +78,10 @@ void VertexBufferObject::setData(int vertex_count, VERTEX* vertex_data, GLuint* 
 		v.nx = vertex_data[i].norm->a;
 		v.ny = vertex_data[i].norm->a;
 		v.nz = vertex_data[i].norm->a;
+		v.r = vertex_data[i].color->r;
+		v.g = vertex_data[i].color->g;
+		v.b = vertex_data[i].color->b;
+		v.a = vertex_data[i].color->a;
 		vertices[i] = v;
 	}
 	

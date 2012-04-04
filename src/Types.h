@@ -11,6 +11,13 @@ struct COORD3D {
 	float c;
 };
 
+struct COLOR {
+	float r;
+	float g;
+	float b;
+	float a;
+};
+
 struct NORMAL {
 	float a;
 	float b;
@@ -20,6 +27,7 @@ struct NORMAL {
 struct VERTEX {
 	COORD3D * pos;
 	NORMAL * norm;
+	COLOR* color;
 };
 
 struct TEXCOORD2D {

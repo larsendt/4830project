@@ -36,6 +36,7 @@ void GLEngine::initGL(int argc, char** argv)
 	glEnable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
     glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_DEPTH_TEST);
 	
 	m_mouseRotX = 0;
 	m_mouseRotY = 0;
