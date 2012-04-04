@@ -6,7 +6,6 @@
 
 #include "Texture.h"
 #include "Types.h"
-#include "VoxelGen.h"
 #include "OCL3DFBMNoise.h"
 
 
@@ -187,8 +186,10 @@ void GLEngine::genNoise(int dim)
 		exit(EXIT_FAILURE);
 	}
 	
+	printf("Marching cubes generating mesh...\n");
 	m_smc->setNoiseData(noisedata, d, s);
-	
+	printf("Done\n");
+		
 	delete[] noisedata;
 	delete noise;
 }

@@ -25,9 +25,9 @@ struct NORMAL {
 };
 
 struct VERTEX {
-	COORD3D * pos;
-	NORMAL * norm;
-	COLOR* color;
+	COORD3D pos;
+	NORMAL norm;
+	COLOR color;
 };
 
 struct TEXCOORD2D {
@@ -35,20 +35,8 @@ struct TEXCOORD2D {
 	float t;
 };
 
-struct EDGE {
-	VERTEX* a;
-	VERTEX* b;
-};
-
-struct TRIANGLE {
-	EDGE * ab;
-	EDGE * bc;
-	EDGE * ca;
-	
-};
-
 struct VOXEL {
-	COORD3D* pos;
+	COORD3D pos;
 };
 
 #endif

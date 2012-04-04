@@ -72,7 +72,7 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 	
 					for(int i = 0; i < idcount; i++)
 					{
-						COORD3D* c = new COORD3D;
+						COORD3D c;
 						//c->a = (x*spacing) + (vertexTable[ids[i]][0]*spacing);
 						//c->b = (y*spacing) + (vertexTable[ids[i]][1]*spacing);
 						//c->c = (z*spacing) + (vertexTable[ids[i]][2]*spacing);
@@ -81,21 +81,21 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 						int edge1 = edgeMap[ids[i]][1];
 						COORD3D temp = vInterpolation(isolevel, cube[edge0], cube[edge1], noisevals[edge0], noisevals[edge1]);
 						
-						c->a = (x*spacing) + (temp.a*spacing);
-						c->b = (y*spacing) + (temp.b*spacing);
-						c->c = (z*spacing) + (temp.c*spacing);
+						c.a = (x*spacing) + (temp.a*spacing);
+						c.b = (y*spacing) + (temp.b*spacing);
+						c.c = (z*spacing) + (temp.c*spacing);
 						
-						NORMAL* n = new NORMAL;
-						n->a = 1;
-						n->b = 1;
-						n->c = 1;
+						NORMAL n;
+						n.a = 1;
+						n.b = 1;
+						n.c = 1;
 						
-						COLOR* color = new COLOR;
+						COLOR color;
 						
-						color->r = c->a;
-						color->g = c->b;
-						color->b = c->c;
-						color->a = 1.0;
+						color.r = c.a;
+						color.g = c.b;
+						color.b = c.c;
+						color.a = 1.0;
 				
 						// allocate more memory if necessary
 						if(vx_count == max_vxs)
@@ -122,12 +122,6 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 	m_vbo->setData(vx_count, vertices, indices);
 	
 	printf("SoftwareMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, dim*dim*dim*12, ((float)vx_count/(dim*dim*dim*12))*100);
-	
-	for(int i = 0; i < vx_count; i++)
-	{
-		delete vertices[i].pos;
-		delete vertices[i].norm;
-	}
 	
 	free(vertices);
 	free(indices);
