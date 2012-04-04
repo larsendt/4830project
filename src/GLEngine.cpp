@@ -49,6 +49,7 @@ void GLEngine::initGL(int argc, char** argv)
 	
 	m_updateRate = 1.0/60.0;
 	resize(m_width, m_height);
+	
 }
 
 int GLEngine::begin()
@@ -95,6 +96,13 @@ int GLEngine::begin()
 					case sf::Key::Down:
 						m_dim /= 2;
 						genNoise(m_dim);
+						break;
+						
+					case sf::Key::N:
+						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						break;
+					case sf::Key::M:
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						break;
 					default:
 						break;
