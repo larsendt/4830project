@@ -3,10 +3,6 @@
 Controls
 ========
 
-'up': increase detail level (will eventually cause the program to die from insufficient resources)
+wsad: rotate camera
 
-'down': decrease detail level
-
-scroll wheel: zoom
-
-click+drag: rotate
+arrows: move forward/backward in camera direction
