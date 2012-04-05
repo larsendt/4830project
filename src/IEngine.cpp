@@ -14,7 +14,7 @@ IEngine::IEngine(int argc, char** argv)
 	m_updateRate = 0.01;
 	
 	// TEST STUFF
-	Shader * fbo_shader = new Shader((char*)"shaders/pp.vert",(char*)"shaders/heat.frag");
+	Shader * fbo_shader = new Shader((char*)"shaders/pp.vert",(char*)"shaders/sobel.frag");
 	p.setShader(fbo_shader);
 	p.init(m_window->GetWidth(), m_window->GetHeight());
 	
