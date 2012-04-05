@@ -136,7 +136,7 @@ void main()
     
 	vec4 color = texture2D(fbo_texture,f_texcoord);
 	float depth = (texture2D(fbo_depth_tex,f_texcoord).r);
-	depth = depth;
+	depth = pow(depth,2);
 	if (depth > .95) depth = (20*(depth-.95));
 	else depth = 0;
 	gl_FragColor = mix(blur, color, 1-depth);

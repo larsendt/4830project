@@ -96,18 +96,18 @@ void SoftwareMarchingCubes::runOutToMesh(MeshObject * mesh)
 						
 						COORD2D xy;
 						
-						xy.s = x/(float)m_dim;
-						xy.t = y/(float)m_dim;
+						xy.s = (float)c.x/(float)m_dim;
+						xy.t = (float)c.y/(float)m_dim;
 						
 						COORD2D xz;
 						
-						xz.s = x/(float)m_dim;
-						xz.t = z/(float)m_dim;
+						xz.s = (float)c.x/(float)m_dim;
+						xz.t = (float)c.z/(float)m_dim;
 						
 						COORD2D yz;
 						
-						yz.s = y/(float)m_dim;
-						yz.t = z/(float)m_dim;
+						yz.s = (float)c.y/(float)m_dim;
+						yz.t = (float)c.z/(float)m_dim;
 						
 						COLOR color;
 						
@@ -141,6 +141,42 @@ void SoftwareMarchingCubes::runOutToMesh(MeshObject * mesh)
 		}
 	}
 	
+	/*printf("Generating normals\n");
+	
+	for (int i = 0; i<vx_count; i+=3){
+	
+	
+		COORD3D a = vertices[i].c;
+		COORD3D b = vertices[i+1].c;
+		COORD3D c = vertices[i+2].c;
+		
+		a.x-=b.x;a.y-=b.y;a.z-=b.z;
+		c.x-=b.x;c.y-=b.y;c.z-=b.z;
+		
+		COORD3D w;
+		COORD3D u;
+		
+		w.x = a.x-c.x; w.y = a.y-c.y; w.z = a.z-c.z;
+		u.x = a.x-b.x; u.y = a.y-b.y; u.z = a.z-b.z;
+		
+		COORD3D n;
+		
+		if (i%2 == 0){
+			COORD3D p;
+			p = w;
+			w = u;
+			u = p;
+		}
+		
+		double x = (w.y*u.z)-(w.z*u.y);
+		double y = (w.z*u.x)-(w.x*u.z);
+		double z = (w.x*u.y)-(w.y*u.x);
+		n.x = x; n.y = y; n.z = z;
+		vertices[i].n = n;
+		vertices[i+1].n = n;
+		vertices[i+2].n = n;
+		
+	}*/
 	
 	
 	printf("SoftwareMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, m_dim*m_dim*m_dim*12, ((float)vx_count/(m_dim*m_dim*m_dim*12))*100);

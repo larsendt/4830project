@@ -1,4 +1,3 @@
-#include "GLEngine.h"
 #include "IEngine.h"
 
 int main(int argc, char** argv)
