@@ -33,7 +33,7 @@ void VertexBufferObject::draw()
 	glNormalPointer(GL_FLOAT, sizeof(VERTEX), BUFFER_OFFSET(sizeof(COORD3D)));
 	
 	glEnableClientState(GL_COLOR_ARRAY);
-	glColorPointer(4, GL_FLOAT, sizeof(VERTEX), BUFFER_OFFSET(sizeof(COORD3D) + sizeof(NORMAL)));
+	glColorPointer(4, GL_FLOAT, sizeof(VERTEX), BUFFER_OFFSET(sizeof(COORD3D) + sizeof(COORD3D)));
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 	glDrawElements(m_mode, m_vertexCount, GL_UNSIGNED_INT, 0);

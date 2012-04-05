@@ -6,9 +6,14 @@
 */
 
 struct COORD3D {
-	float a;
-	float b;
-	float c;
+	float x;
+	float y;
+	float z;
+};
+
+struct COORD2D {
+	float s;
+	float t;
 };
 
 struct COLOR {
@@ -18,25 +23,25 @@ struct COLOR {
 	float a;
 };
 
-struct NORMAL {
-	float a;
-	float b;
-	float c;
+struct VERTEX{
+	COORD3D c;
+	COORD3D n;
+	COORD2D xy;
+	COORD2D xz;
+	COORD2D yz;
+	float padding[4]; // 32 byte alignment to make everything easier
 };
 
-struct VERTEX {
-	COORD3D pos;
-	NORMAL norm;
-	COLOR color;
-};
 
-struct TEXCOORD2D {
-	float s;
-	float t;
-};
 
 struct VOXEL {
 	COORD3D pos;
+};
+
+struct TRIANGLE{
+	VERTEX * a;
+	VERTEX * b;
+	VERTEX * c;
 };
 
 #endif

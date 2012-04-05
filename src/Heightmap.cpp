@@ -21,10 +21,10 @@ float Heightmap::heightFunction(float x, float z){
 void Heightmap::create(){
 	perlin = new Perlin(3, 2, 1, 0);
 	
-	vertices = new VERT**[h_height];
+	vertices = new VERTEX**[h_height];
 	
 	for(int i = 0; i<h_height; i++){
-		vertices[i] = new VERT*[h_width];
+		vertices[i] = new VERTEX*[h_width];
 	}
 	
 	unsigned int pos = 0;
@@ -32,8 +32,8 @@ void Heightmap::create(){
 	for (int i = 0; i<h_height; i++){
 		for (int j = 0; j<h_width; j++){
 			
-			VERT * v;
-			v = new VERT;
+			VERTEX * v;
+			v = new VERTEX;
 			vertices[i][j] = v;
 			
 			v->c.x = i;
@@ -85,7 +85,6 @@ void Heightmap::create(){
 			v->n.y = normal.y;
 			v->n.z = normal.z;
 			
-			v->pos = pos;
 			pos++;
 			
 		}
@@ -104,10 +103,10 @@ void Heightmap::create(){
 					//  |  \|
 					//  c---d
 					
-					VERT * a = vertices[i][j];
-					VERT * b = vertices[i][j+1];
-					VERT * c = vertices[i+1][j];
-					VERT * d = vertices[i+1][j+1];
+					VERTEX * a = vertices[i][j];
+					VERTEX * b = vertices[i][j+1];
+					VERTEX * c = vertices[i+1][j];
+					VERTEX * d = vertices[i+1][j+1];
 					
 					TRIANGLE * t = NULL;
 					t = new TRIANGLE;
@@ -166,7 +165,7 @@ void Heightmap::writeToImage(){
 	sf::Image img(h_width, h_height, NULL);
 	for (int i = 0; i<h_height; i++){
 		for (int j = 0; j<h_width; j++){
-			VERT * v = vertices[i][j];
+			VERTEX * v = vertices[i][j];
 			Uint8 val = (Uint8)(((v->c.y)+.5)*255.0);
 			col.r = val;
 			col.g = val;
@@ -182,10 +181,10 @@ void Heightmap::writeToImage(){
 MeshObject * Heightmap::convertToMesh(){
 	
 	MeshObject * mo = new MeshObject;
-	TRIANGLE * t;
-	VERT * a;
-	VERT * b;
-	VERT * c;
+	/*TRIANGLE * t;
+	VERTEX * a;
+	VERTEX * b;
+	VERTEX * c;
 	
 	float * verts = new float[h_height * h_width * 3];
 	int v_count = 0;
@@ -248,7 +247,7 @@ MeshObject * Heightmap::convertToMesh(){
 		i_count++;
 		vorder[i_count] = b->pos;
 		i_count++;
-		vorder[i_count] = c->pos;
+		vorder[i_count] = c->p;
 		i_count++;	
 		
 	}
@@ -265,6 +264,6 @@ MeshObject * Heightmap::convertToMesh(){
 	
 	vData->i_count = i_count;
 	mo->c_shader = shader;
-	mo->set(vData);
+	mo->set(vData);*/
 	return mo;
 }

@@ -1,8 +1,9 @@
 #include "GLEngine.h"
+#include "IEngine.h"
 
 int main(int argc, char** argv)
 {
-    GLEngine* ge = new GLEngine(argc, argv);
+    IEngine* ge = new IEngine(argc, argv);
     int retval = ge->begin();
     delete ge;
     return retval;

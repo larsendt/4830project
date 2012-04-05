@@ -16,7 +16,65 @@ MeshObject::~MeshObject(){
 
 }
 
-void MeshObject::set(vbo_data * vData){
+
+void MeshObject::setInterleaved(VERTEX * vData, unsigned int v_count, 
+							unsigned int * indices, unsigned int i_count){
+
+	
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_packages);
+	glBufferData(GL_ARRAY_BUFFER,
+					v_count*sizeof(VERTEX), // size in bytes
+					&vData[0].c.x, // address of first element
+					GL_STATIC_DRAW); // derp a herp derp derp
+		
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
+					i_count*sizeof(unsigned int),
+					indices,
+					GL_STATIC_DRAW);
+
+	const char* attribute_name;
+	attribute_name = "vertex";
+	att_vertex = glGetAttribLocation(c_shader, attribute_name);
+	if (att_vertex == -1) {
+		fprintf(stderr, "Could not bind attribute %s\n", attribute_name);
+	}
+
+	
+	attribute_name = "normal";
+	att_normal = glGetAttribLocation(c_shader, attribute_name);
+	if (att_normal == -1) {
+		fprintf(stderr, "Could not bind attribute %s\n", attribute_name);
+	}
+	
+	
+	attribute_name = "tex_yz";
+	att_tex_yz = glGetAttribLocation(c_shader, attribute_name);
+	if (att_tex_yz == -1) {
+		fprintf(stderr, "Could not bind attribute %s\n", attribute_name);
+	}
+	
+	
+	attribute_name = "tex_xz";
+	att_tex_xz = glGetAttribLocation(c_shader, attribute_name);
+	if (att_tex_xz == -1) {
+		fprintf(stderr, "Could not bind attribute %s\n", attribute_name);
+	}
+	
+	
+	attribute_name = "tex_xy";
+	att_tex_xy = glGetAttribLocation(c_shader, attribute_name);
+	if (att_tex_xy == -1) {
+		fprintf(stderr, "Could not bind attribute %s\n", attribute_name);
+	}
+	//printf("binding xy: %s\n", gluErrorString(glGetError()));
+	
+	free(indices);
+	free(vData);
+
+}
+
+void MeshObject::setSequenced(vbo_data * vData){
 
 	int count = vData->v_count/3;
 	vbo_package * packs = new vbo_package[count];
@@ -71,11 +129,11 @@ void MeshObject::set(vbo_data * vData){
 					&packs[0].x, // address of first element
 					GL_STATIC_DRAW); // derp a herp derp derp
 					
-	unsigned short * indices = vData->vorder;
+	unsigned int * indices = vData->vorder;
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
-					vData->i_count*sizeof(unsigned short),
+					vData->i_count*sizeof(unsigned int),
 					indices,
 					GL_STATIC_DRAW);
 
@@ -116,7 +174,6 @@ void MeshObject::set(vbo_data * vData){
 	}
 	//printf("binding xy: %s\n", gluErrorString(glGetError()));
 	
-
 }
 
 void MeshObject::setShader(unsigned int program){
@@ -196,9 +253,7 @@ void MeshObject::draw(){
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
 	int size;	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-	glDrawElements(GL_TRIANGLES, size/sizeof(unsigned short), GL_UNSIGNED_SHORT, 0);
-	
-	//printf("draw: %s\n", gluErrorString(glGetError()));
+	glDrawElements(GL_TRIANGLES, size/sizeof(unsigned int), GL_UNSIGNED_INT, 0);
 	
 	glDisableVertexAttribArray(att_tex_xy);
 	glDisableVertexAttribArray(att_tex_xz);

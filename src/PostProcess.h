@@ -1,5 +1,6 @@
 #include "Shader.h"
 #include <GL/glu.h>
+#include <stdio.h>
 class PostProcess{
 
 	public:

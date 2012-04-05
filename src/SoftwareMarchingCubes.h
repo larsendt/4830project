@@ -3,6 +3,7 @@
 
 #include "Types.h"
 #include "VertexBufferObject.h"
+#include "MeshObject.h"
 #include <math.h>
 
 
@@ -12,13 +13,17 @@ class SoftwareMarchingCubes
 		SoftwareMarchingCubes();
 		~SoftwareMarchingCubes();
 		void setNoiseData(unsigned char* noise, int dim, float spacing);
+		void runOutToMesh(MeshObject * mesh);
 		void draw();
 	
 	private:
 		int index1D(int x, int y, int z);
 		
-		VertexBufferObject* m_vbo;
 		int m_dim;
+		
+		unsigned char * m_noise;
+		
+		float m_spacing;
 		
 		COORD3D vInterpolation(unsigned int isolevel,
 								 COORD3D p1,

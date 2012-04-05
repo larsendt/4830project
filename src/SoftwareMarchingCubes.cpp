@@ -8,36 +8,40 @@
 
 SoftwareMarchingCubes::SoftwareMarchingCubes()
 {
-	m_vbo = new VertexBufferObject(GL_TRIANGLES);
 }
 
 SoftwareMarchingCubes::~SoftwareMarchingCubes()
 {
-	delete m_vbo;
 }
 
-void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float spacing)
+void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float spacing){
+
+	m_noise = noise;
+	m_dim = dim;
+	m_spacing = spacing;
+
+}
+
+void SoftwareMarchingCubes::runOutToMesh(MeshObject * mesh)
 {
 
 	COORD3D cube[8];
 	int index = 0;
-	cube[index].a = 0; cube[index].b = 0; cube[index].c = 0;
+	cube[index].x = 0; cube[index].y = 0; cube[index].z = 0;
 	index = 1;
-	cube[index].a = 1; cube[index].b = 0; cube[index].c = 0;
+	cube[index].x = 1; cube[index].y = 0; cube[index].z = 0;
 	index = 2;
-	cube[index].a = 1; cube[index].b = 0; cube[index].c = 1;
+	cube[index].x = 1; cube[index].y = 0; cube[index].z = 1;
 	index = 3;
-	cube[index].a = 0; cube[index].b = 0; cube[index].c = 1;
+	cube[index].x = 0; cube[index].y = 0; cube[index].z = 1;
 	index = 4;
-	cube[index].a = 0; cube[index].b = 1; cube[index].c = 0;
+	cube[index].x = 0; cube[index].y = 1; cube[index].z = 0;
 	index = 5;
-	cube[index].a = 1; cube[index].b = 1; cube[index].c = 0;
+	cube[index].x = 1; cube[index].y = 1; cube[index].z = 0;
 	index = 6;
-	cube[index].a = 1; cube[index].b = 1; cube[index].c = 1;
+	cube[index].x = 1; cube[index].y = 1; cube[index].z = 1;
 	index = 7;
-	cube[index].a = 0; cube[index].b = 1; cube[index].c = 1;
-	
-	m_dim = dim;
+	cube[index].x = 0; cube[index].y = 1; cube[index].z = 1;
 	
 	// we start with 512 vertices and allocate more if necessary
 	int max_vxs = 512;
@@ -46,11 +50,11 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 	int vx_count = 0;
 	bool color_flag = false;
 	
-	for(int x = 0; x < dim-1; x++)
+	for(int x = 0; x < m_dim-1; x++)
 	{
-		for(int y = 0; y < dim-1; y++)
+		for(int y = 0; y < m_dim-1; y++)
 		{
-			for(int z = 0; z < dim-1; z++)
+			for(int z = 0; z < m_dim-1; z++)
 			{
 				unsigned char noisevals[8];
 				unsigned int indices1d[8];
@@ -59,8 +63,8 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 				
 				for(int i = 0; i < 8; i++)
 				{
-					indices1d[i] = index1D(x+cube[i].a, y+cube[i].b, z+cube[i].c);
-					noisevals[i] = noise[indices1d[i]];
+					indices1d[i] = index1D(x+cube[i].x, y+cube[i].y, z+cube[i].z);
+					noisevals[i] = m_noise[indices1d[i]];
 					
 					if(noisevals[i] < isolevel) cubeindex |= (unsigned char)pow(2, i);
 				}
@@ -81,20 +85,35 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 						int edge1 = edgeMap[ids[i]][1];
 						COORD3D temp = vInterpolation(isolevel, cube[edge0], cube[edge1], noisevals[edge0], noisevals[edge1]);
 						
-						c.a = (x*spacing) + (temp.a*spacing);
-						c.b = (y*spacing) + (temp.b*spacing);
-						c.c = (z*spacing) + (temp.c*spacing);
+						c.x = (x*m_spacing) + (temp.x*m_spacing);
+						c.y = (y*m_spacing) + (temp.y*m_spacing);
+						c.z = (z*m_spacing) + (temp.z*m_spacing);
 						
-						NORMAL n;
-						n.a = 1;
-						n.b = 1;
-						n.c = 1;
+						COORD3D n;
+						n.x = 0;
+						n.y = 1;
+						n.z = 0;
+						
+						COORD2D xy;
+						
+						xy.s = x/(float)m_dim;
+						xy.t = y/(float)m_dim;
+						
+						COORD2D xz;
+						
+						xz.s = x/(float)m_dim;
+						xz.t = z/(float)m_dim;
+						
+						COORD2D yz;
+						
+						yz.s = y/(float)m_dim;
+						yz.t = z/(float)m_dim;
 						
 						COLOR color;
 						
-						color.r = c.a;
-						color.g = c.b;
-						color.b = c.c;
+						color.r = c.x;
+						color.g = c.y;
+						color.b = c.z;
 						color.a = 1.0;
 				
 						// allocate more memory if necessary
@@ -105,9 +124,12 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 							indices = (GLuint*) realloc(indices, max_vxs * sizeof(*indices));
 						}
 				
-						vertices[vx_count].pos = c;
-						vertices[vx_count].norm = n;
-						vertices[vx_count].color = color;
+						vertices[vx_count].c = c;
+						vertices[vx_count].n = n;
+						vertices[vx_count].xy = xy;
+						vertices[vx_count].xz = xz;
+						vertices[vx_count].yz = yz;
+						
 						indices[vx_count] = vx_count;
 						vx_count ++;
 					}
@@ -119,17 +141,17 @@ void SoftwareMarchingCubes::setNoiseData(unsigned char* noise, int dim, float sp
 		}
 	}
 	
-	m_vbo->setData(vx_count, vertices, indices);
 	
-	printf("SoftwareMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, dim*dim*dim*12, ((float)vx_count/(dim*dim*dim*12))*100);
 	
-	free(vertices);
-	free(indices);
+	printf("SoftwareMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, m_dim*m_dim*m_dim*12, ((float)vx_count/(m_dim*m_dim*m_dim*12))*100);
+	
+	mesh->setInterleaved(vertices, vx_count-1, indices, vx_count-1);
+	
 }
 
 void SoftwareMarchingCubes::draw()
 {
-	m_vbo->draw();
+	printf("Can't draw this, doo dood oodo\n");
 }
 
 int SoftwareMarchingCubes::index1D(int x, int y, int z)
@@ -155,9 +177,9 @@ COORD3D SoftwareMarchingCubes::vInterpolation(unsigned int isolevel,
 	if (fabs(isolevel-v2)<0.00001) return p2;
 	if (fabs(v1-v2) < 0.00001) return p1;
 	mu = (isolevel - v1) / (v2-v1);
-	p.a = p1.a + mu*(p2.a-p1.a);
-	p.b = p1.b + mu*(p2.b-p1.b);
-	p.c = p1.c + mu*(p2.c-p1.c);
+	p.x = p1.x + mu*(p2.x-p1.x);
+	p.y = p1.y + mu*(p2.y-p1.y);
+	p.z = p1.z + mu*(p2.z-p1.z);
 	
 	return p;
 }

@@ -15,6 +15,8 @@
 #include "World.h"
 #include "Heightmap.h"
 #include "PostProcess.h"
+#include "OCL3DFBMNoise.h"
+#include "SoftwareMarchingCubes.h"
 
 class IEngine
 {
@@ -27,7 +29,7 @@ class IEngine
 		void resize(int width, int height);
 		int begin();
 		float heightFunction(float i, float j);
-		
+		void genNoise(int dim);
 	private:
 		double m_time;
 		sf::Window* m_window;
@@ -36,11 +38,14 @@ class IEngine
 		float time;
 		float m_updateRate;
 		float m_width;
-		Heightmap * hm;
+		
+		bool m_wireframe;
+		
+		SoftwareMarchingCubes * mc;
 		MeshObject * mo;
 		
 		PostProcess p;
-		Shader sh;
+		Shader * sh;
 		
 		float pitch; 
 		float yaw;

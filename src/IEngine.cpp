@@ -14,21 +14,17 @@ IEngine::IEngine(int argc, char** argv)
 	m_updateRate = 0.01;
 	
 	// TEST STUFF
-	Shader * fbo_shader = new Shader();
-	fbo_shader->load((char*)"shaders/pp.vert",(char*)"shaders/heat.frag");
+	Shader * fbo_shader = new Shader((char*)"shaders/pp.vert",(char*)"shaders/heat.frag");
 	p.setShader(fbo_shader);
 	p.init(m_window->GetWidth(), m_window->GetHeight());
 	
-	hm = new Heightmap(256, 256);
 	
 	unsigned int tex2 = loadImage((char*)"tex/forest.jpg");
 	unsigned int tex = loadImage((char*)"tex/lavarock.jpg");
 	
-	sh.load((char*)"shaders/triplanar.vert", (char*)"shaders/triplanar.frag");
-	sh.shade();
+	sh = new Shader((char*)"shaders/triplanar.vert", (char*)"shaders/triplanar.frag");
 	
-	sh.setUniform((char*) "tex");
-	sh.setUniform((char*) "tex2");
+	sh->bind();
 	
 	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE2);
@@ -38,18 +34,21 @@ IEngine::IEngine(int argc, char** argv)
 	glActiveTexture(GL_TEXTURE3);
 	bindImage(tex2);
 	
-	sh.updateUniform1i((char*)"tex", 2);
-	sh.updateUniform1i((char*)"tex2", 3);
+	sh->setUniform1i((char*)"tex", 2);
+	sh->setUniform1i((char*)"tex2", 3);
+	mo = new MeshObject();
+	mc = new SoftwareMarchingCubes();
+	int m_dim = 128;
+	mo->setShader(sh->getID());
+	genNoise(m_dim);
 	
-	hm->setShader(sh.program);
-	hm->create();
-	mo = hm->convertToMesh();
+	m_wireframe = false;
 	
 	pitch = 0;
 	yaw = 0;
-	xpos = 128;
+	xpos = 50;
 	ypos = 10;
-	zpos = 128;
+	zpos = 50;
 	// END TEST
 }
 
@@ -137,11 +136,11 @@ int IEngine::begin()
 				}
 				if(Event.Key.Code == sf::Key::M)
 				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					m_wireframe = true;
 				}
 				if(Event.Key.Code == sf::Key::N)
 				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					m_wireframe = false;
 				}
 			}
 			else if(Event.Type == sf::Event::Resized)
@@ -164,7 +163,7 @@ int IEngine::begin()
 void IEngine::drawScene()
 {
 	p.startDraw();
-
+	if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	
@@ -184,6 +183,8 @@ void IEngine::drawScene()
 	glVertex3f(0.0,0.0,1000.0);
 	glEnd();
 	
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	
 	p.draw();
 	
 }
@@ -192,9 +193,14 @@ void IEngine::drawScene()
 void IEngine::update()
 {
 	time += m_clock->GetElapsedTime();
-
+	float multiplier = 1.0;
 	while(m_clock->GetElapsedTime() < m_updateRate)
     	continue;
+    	
+   	if(time > m_updateRate)
+	{
+		multiplier = time / m_updateRate;
+	}
     m_clock->Reset();
 
 }
@@ -213,4 +219,29 @@ void IEngine::resize(int width, int height)
 	glLoadIdentity();
 	
 	p.resize(width, height);
+}
+
+void IEngine::genNoise(int dim)
+{
+	printf("Generating terrain with size %d (%dx%dx%d)\n", dim*dim*dim, dim, dim, dim);
+	
+	int d = dim;
+	float s = 100.0/d;
+	int index = 0;
+	unsigned char* noisedata = new unsigned char[d*d*d];
+	
+	OCL3DFBMNoise* noise = new OCL3DFBMNoise();
+	if(!noise->noise(d, noisedata))
+	{
+		fprintf(stderr, "Error: Noise generation borked\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	printf("Marching cubes generating mesh...\n");
+	mc->setNoiseData(noisedata, d, s);
+	mc->runOutToMesh(mo);
+	printf("Done\n");
+		
+	delete[] noisedata;
+	delete noise;
 }

@@ -1,34 +1,10 @@
 #include <SFML/Graphics.hpp>
 #include "MeshObject.h"
 #include "Perlin.h"
+#include "Types.h"
 
 #define Uint8 sf::Uint8
 
-struct COORD3D{
-	float x;
-	float y;
-	float z;
-};
-
-struct COORD2D{
-	float s;
-	float t;
-};
-
-struct VERT{
-	COORD3D c;
-	COORD3D n;
-	COORD2D xy;
-	COORD2D xz;
-	COORD2D yz;
-	unsigned int pos;
-};
-
-struct TRIANGLE{
-	VERT * a;
-	VERT * b;
-	VERT * c;
-};
 
 class Heightmap{
 
@@ -48,6 +24,6 @@ class Heightmap{
 		int h_height;
 		int t_num;
 		Perlin * perlin;
-		VERT *** vertices;
+		VERTEX *** vertices;
 		TRIANGLE ** triangles; 
 };

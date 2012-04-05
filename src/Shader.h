@@ -11,8 +11,11 @@ class Shader
 {
     public:
         Shader(const char* vert_path, const char* frag_path);
+        void load(const char* vert_path, const char* frag_path);
+        
         void bind();
         void release();
+        GLuint getID();
         
         void setUniform1f(const char* name, float value);
         void setUniform2f(const char* name, float v1, float v2);
@@ -25,7 +28,7 @@ class Shader
         void setUniform4i(const char* name, int v1, int v2, int v3, int v4);
         
         void setUniformMatrix4fv(const char* name, float* value);
-
+        
     protected:
         GLuint compileShader(GLenum shader_type, const char* file_path);
         GLuint linkProgram(GLuint vert_handle, GLuint frag_handle);

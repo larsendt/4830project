@@ -15,6 +15,17 @@ Shader::Shader(const char* vert_path, const char* frag_path)
     printf("Complete\n");
 }
 
+void Shader::load(const char* vert_path, const char* frag_path){
+
+	printf("Compiling vertex shader: %s\n", vert_path);
+    GLuint vertex_handle = compileShader(GL_VERTEX_SHADER, vert_path);
+    printf("Compiling fragment shader: %s\n", frag_path);
+    GLuint frag_handle = compileShader(GL_FRAGMENT_SHADER, frag_path);
+    printf("Linking program\n");
+    m_program = linkProgram(vertex_handle, frag_handle);
+    printf("Complete\n");
+
+}
 void Shader::bind()
 {
     glUseProgram(m_program);
@@ -23,6 +34,10 @@ void Shader::bind()
 void Shader::release()
 {
     glUseProgram(0);
+}
+
+GLuint Shader::getID(){
+	return m_program;
 }
 
 void Shader::setUniform1f(const char* name, float value)
@@ -107,29 +122,48 @@ GLuint Shader::linkProgram(GLuint vert_handle, GLuint frag_handle)
 
 void Shader::printShaderLog(GLuint shader, const char* shader_file)
 {
-    char* text = new char[4096];
-    int len;
-    
-    glGetShaderInfoLog(shader, 4096, &len, text);
-    if(text && len > 0)
-    {
-        printf("Error compiling shader: %s\n%s\n", shader_file, text);
-        exit(1);
-    }
+   	GLint log_length = 0;
+	if (glIsShader(shader))
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_length);
+	else if (glIsProgram(shader))
+		glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &log_length);
+	else {
+		fprintf(stderr, "printlog: Not a shader or a program\n");
+		return;
+	}
+
+	char* log = (char*)malloc(log_length);
+
+	if (glIsShader(shader))
+		glGetShaderInfoLog(shader, log_length, NULL, log);
+	else if (glIsProgram(shader))
+		glGetProgramInfoLog(shader, log_length, NULL, log);
+
+	fprintf(stderr, "%s", log);
+	free(log);
 }
 
 void Shader::printProgramLog(GLuint program)
 {
-    char* text = new char[4096];
-    int len;
-    
-    glGetProgramInfoLog(program, 4096, &len, text);
-    
-    if(len > 0)
-    {
-        printf("Error linking program:\n%s\n", text);
-        exit(1);
-    }
+    GLint log_length = 0;
+	if (glIsShader(program))
+		glGetShaderiv(program, GL_INFO_LOG_LENGTH, &log_length);
+	else if (glIsProgram(program))
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_length);
+	else {
+		fprintf(stderr, "printlog: Not a shader or a program\n");
+		return;
+	}
+
+	char* log = (char*)malloc(log_length);
+
+	if (glIsShader(program))
+		glGetShaderInfoLog(program, log_length, NULL, log);
+	else if (glIsProgram(program))
+		glGetProgramInfoLog(program, log_length, NULL, log);
+
+	fprintf(stderr, "%s", log);
+	free(log);
 }
 
 

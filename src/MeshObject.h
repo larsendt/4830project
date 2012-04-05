@@ -2,6 +2,7 @@
 #include <GL/glu.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "Types.h"
 
 #ifndef MESHOBJECT
 #define MESHOBJECT
@@ -15,9 +16,9 @@ struct vbo_data{
 	float* yztex;
 	float* xztex;
 	float* xytex;
-	int v_count;
+	int v_count; // actually the number of elements in verts
 	
-	unsigned short * vorder;
+	unsigned int * vorder;
 	int i_count;
 };
 
@@ -35,7 +36,8 @@ class MeshObject{
 		MeshObject();
 		~MeshObject();
 		
-		void set(vbo_data * vData);
+		void setSequenced(vbo_data * vData);
+		void setInterleaved(VERTEX * vData, unsigned int v_count, unsigned int * indiced, unsigned int i_count);
 		void setShader(unsigned int program);
 		void draw();
 		

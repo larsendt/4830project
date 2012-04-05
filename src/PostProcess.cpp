@@ -67,24 +67,24 @@ void PostProcess::init(int width, int height){
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
 	const char * attribute_name = "v_coord";
-	attribute_v_coord_postproc = glGetAttribLocation(fbo_shader->program, attribute_name);
+	attribute_v_coord_postproc = glGetAttribLocation(fbo_shader->getID(), attribute_name);
 	
 	const char* uniform_name = "fbo_texture";
-	uniform_fbo_texture = glGetUniformLocation(fbo_shader->program, uniform_name);
+	uniform_fbo_texture = glGetUniformLocation(fbo_shader->getID(), uniform_name);
 	glUniform1i(uniform_fbo_texture, 0);
 	
 	uniform_name = "fbo_depth_tex";
-	uniform_fbo_depth_tex = glGetUniformLocation(fbo_shader->program, uniform_name);
+	uniform_fbo_depth_tex = glGetUniformLocation(fbo_shader->getID(), uniform_name);
 	glUniform1i(uniform_fbo_depth_tex, 1);
 	
 	uniform_name = "dX";
-	dxloc = glGetUniformLocation(fbo_shader->program, uniform_name);
+	dxloc = glGetUniformLocation(fbo_shader->getID(), uniform_name);
 	
 	uniform_name = "dY";
-	dyloc = glGetUniformLocation(fbo_shader->program, uniform_name);
+	dyloc = glGetUniformLocation(fbo_shader->getID(), uniform_name);
 	
 	uniform_name = "time";
-	timeloc = glGetUniformLocation(fbo_shader->program, uniform_name);
+	timeloc = glGetUniformLocation(fbo_shader->getID(), uniform_name);
 	
 }
 
@@ -97,7 +97,7 @@ void PostProcess::draw(){
 	
 	float dX = 1.0/W;
    	float dY = 1.0/H;
-	glUseProgram(fbo_shader->program);
+	glUseProgram(fbo_shader->getID());
 	glUniform1f(dxloc,dX);
     glUniform1f(dyloc,dY);
     glUniform1f(timeloc, time);
