@@ -2,8 +2,6 @@
 ///           IEngine.h
 //////////////////////////////////////////
 
-#ifndef IEngine_H
-#define IEngine_H
 #define GL_GLEXT_PROTOTYPES
 #include <math.h>
 #include "Shader.h"
@@ -13,10 +11,16 @@
 #include <SFML/System.hpp>
 #include <stdio.h>
 #include "World.h"
-#include "Heightmap.h"
 #include "PostProcess.h"
-#include "OCL3DFBMNoise.h"
-#include "SoftwareMarchingCubes.h"
+#include "Vec3.h"
+
+
+#ifndef IEngine_H
+#define IEngine_H
+
+#define PI 3.1415
+#define mradians(i) (i/180.0 * PI)
+#define mdegrees(i) (i/PI * 180.0)
 
 class IEngine
 {
@@ -29,7 +33,6 @@ class IEngine
 		void resize(int width, int height);
 		int begin();
 		float heightFunction(float i, float j);
-		void genNoise(int dim);
 	private:
 		double m_time;
 		sf::Window* m_window;
@@ -41,18 +44,18 @@ class IEngine
 		
 		bool m_wireframe;
 		
-		SoftwareMarchingCubes * mc;
-		MeshObject * mo;
+		World w;
 		
 		PostProcess p;
 		Shader * sh;
 		
-		float pitch; 
+		float pitchspeed;
+		float pitch;
+		float yawspeed; 
 		float yaw;
 		
-		float xpos;
-		float ypos;
-		float zpos;
+		vec3 c_pos;
+		vec3 c_speed;
 };
 
 #endif

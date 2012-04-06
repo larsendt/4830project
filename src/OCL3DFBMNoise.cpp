@@ -6,9 +6,9 @@ OCL3DFBMNoise::OCL3DFBMNoise()
 	m_kernel = new OCLKernel("kernels/fbmnoise.cl", "FBMNoiseArray3d");
 }
 
-bool OCL3DFBMNoise::noise(int dim, unsigned char* data)
+bool OCL3DFBMNoise::noise(int dim, unsigned char* data, float pos[3])
 {
-	float bias[4] = {128, 128, 128, 128};
+	float bias[4] = {pos[0],pos[1],pos[2], 256};
 	float scale[4] = {2, 2, 2, 2};
 	float amplitude = 1;
 

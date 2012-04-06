@@ -1,16 +1,28 @@
+
+
 #include "MeshObject.h"
-#include "CollisionMesh.h"
+#include "Polygonize.h"
+#include "MapGen.h"
+#include "Types.h"
+
+#ifndef CHUNK
+#define CHUNK
 
 class Chunk{
 	public:
 		Chunk();
 		~Chunk();
-		Chunk(int x, int y, int z);
+		Chunk(int nx, int ny, int nz, MapGen* gen);
+		
 		void draw();
-	//private:
+		
 		int x;
 		int y; 
 		int z;
+	private:
+		MapGen* gen;
 		MeshObject * m;
-		CollisionMesh * cm;
+		void make();
 };
+
+#endif

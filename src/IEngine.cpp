@@ -14,7 +14,7 @@ IEngine::IEngine(int argc, char** argv)
 	m_updateRate = 0.01;
 	
 	// TEST STUFF
-	Shader * fbo_shader = new Shader((char*)"shaders/pp.vert",(char*)"shaders/sobel.frag");
+	Shader * fbo_shader = new Shader((char*)"shaders/pp.vert",(char*)"shaders/depthdet.frag");
 	p.setShader(fbo_shader);
 	p.init(m_window->GetWidth(), m_window->GetHeight());
 	
@@ -36,19 +36,15 @@ IEngine::IEngine(int argc, char** argv)
 	
 	sh->setUniform1i((char*)"tex", 2);
 	sh->setUniform1i((char*)"tex2", 3);
-	mo = new MeshObject();
-	mc = new SoftwareMarchingCubes();
-	int m_dim = 128;
-	mo->setShader(sh->getID());
-	genNoise(m_dim);
-	
+	w.m_gen.shader = sh->getID();
 	m_wireframe = false;
+	
 	
 	pitch = 0;
 	yaw = 0;
-	xpos = 50;
-	ypos = 10;
-	zpos = 50;
+	c_pos.x = 128; c_pos.y = 64; c_pos.z = 128;
+	c_speed.x = 0; c_speed.y = 0; c_speed.z = 0;
+	
 	// END TEST
 }
 
@@ -60,7 +56,7 @@ void IEngine::initGL(int argc, char** argv)
 	
 	glPointSize(5.0);
 	glEnable(GL_POINT_SMOOTH);
-	glLineWidth(2.0);
+	glLineWidth(4.0);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
 }
@@ -79,34 +75,34 @@ void IEngine::checkKeys(){
 	bool down = input.IsKeyDown(sf::Key::Down);
 	
 	if (a){
-		yaw ++;
+		yawspeed += .03;
 	}
 	if (d){
-		yaw --;
+		yawspeed -= .03;
 	}
 	if (w){
-		pitch++;
+		pitchspeed += .03;
 	}
 	if (s){
-		pitch--;
+		pitchspeed -= .03;
 	}
 	
 	if (up){
-		float z = -(cos(mradians(yaw)));
+		float z = -(cos(mradians(yaw)))*(cos(mradians(pitch)));
 		float y = (sin(mradians(pitch)));
-		float x = -(sin(mradians(yaw)));
-		xpos += x;
-		ypos += y;
-		zpos += z;
+		float x = -(sin(mradians(yaw)))*(cos(mradians(pitch)));
+		c_speed.x += .001*x;
+		c_speed.y += .001*y;
+		c_speed.z += .001*z;
 	}
 	
 	if (down){
-		float z = (cos(mradians(yaw)));
+		float z = (cos(mradians(yaw)))*cos(mradians(pitch));
 		float y = -(sin(mradians(pitch)));
-		float x = (sin(mradians(yaw)));
-		xpos += x;
-		ypos += y;
-		zpos += z;
+		float x = (sin(mradians(yaw)))*cos(mradians(pitch));
+		c_speed.x += .001*x;
+		c_speed.y += .001*y;
+		c_speed.z += .001*z;
 	}
 	
 }
@@ -169,19 +165,8 @@ void IEngine::drawScene()
 	
 	glRotatef(-pitch, 1,0,0);
 	glRotatef(-yaw, 0,1,0);
-	glTranslatef(-xpos, -ypos, -zpos);
-
-	mo->draw();
-	glColor3f(0.0,0.0,1.0);
-	
-	glBegin(GL_LINES);
-	glVertex3f(-1000.0,0.0,0.0);
-	glVertex3f(1000.0,0.0,0.0);
-	glVertex3f(0.0,-1000.0,0.0);
-	glVertex3f(0.0, 1000.0,0.0);
-	glVertex3f(0.0,0.0,-1000.0);
-	glVertex3f(0.0,0.0,1000.0);
-	glEnd();
+	glTranslatef(-c_pos.x, -c_pos.y, -c_pos.z);
+	w.drawAt(0,0,0);
 	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
@@ -201,6 +186,19 @@ void IEngine::update()
 	{
 		multiplier = time / m_updateRate;
 	}
+	
+	c_pos = c_pos + c_speed;
+	if (fabs(yawspeed) < .01){
+		yawspeed = 0;
+	}
+	else yawspeed = (fabs(yawspeed)-.01)*(yawspeed<0?-1:1);
+	yaw = yaw + yawspeed;
+	if (fabs(pitchspeed) < .01){
+		pitchspeed = 0;
+	}
+	else pitchspeed = (fabs(pitchspeed)-.01)*(pitchspeed<0?-1:1);
+	pitch = pitch + pitchspeed;
+	
     m_clock->Reset();
 
 }
@@ -219,29 +217,4 @@ void IEngine::resize(int width, int height)
 	glLoadIdentity();
 	
 	p.resize(width, height);
-}
-
-void IEngine::genNoise(int dim)
-{
-	printf("Generating terrain with size %d (%dx%dx%d)\n", dim*dim*dim, dim, dim, dim);
-	
-	int d = dim;
-	float s = 100.0/d;
-	int index = 0;
-	unsigned char* noisedata = new unsigned char[d*d*d];
-	
-	OCL3DFBMNoise* noise = new OCL3DFBMNoise();
-	if(!noise->noise(d, noisedata))
-	{
-		fprintf(stderr, "Error: Noise generation borked\n");
-		exit(EXIT_FAILURE);
-	}
-	
-	printf("Marching cubes generating mesh...\n");
-	mc->setNoiseData(noisedata, d, s);
-	mc->runOutToMesh(mo);
-	printf("Done\n");
-		
-	delete[] noisedata;
-	delete noise;
 }

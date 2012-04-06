@@ -1,7 +1,9 @@
 #include "World.h"
 
 World::World(){
-	max_size = 20;
+	max_size = 50;
+	cur_size = 0;
+	chunks = new Chunk * [max_size];
 }
 
 World::~World(){
@@ -12,7 +14,8 @@ World::World(int size){
 
 	max_size = size;
 	cur_size = 0;
-
+	
+	chunks = new Chunk * [size];
 }
 
 Chunk* World::getChunkAt(int x, int y, int z){
@@ -20,7 +23,7 @@ Chunk* World::getChunkAt(int x, int y, int z){
 	for (int i = 0; i<cur_size; i++){
 	
 		Chunk* it = chunks[i];
-		if ((it->x == x) && (it->x == x) && (it->x == x)){
+		if ((it->x == x) && (it->y == y) && (it->z == z)){
 			return it;
 		}
 	
@@ -30,7 +33,7 @@ Chunk* World::getChunkAt(int x, int y, int z){
 		return NULL;
 	
 	}
-	Chunk * c = new Chunk(x,y,z);
+	Chunk * c = new Chunk(x,y,z, &m_gen);
 	chunks[cur_size] = c;
 	cur_size ++;
 	return c;
@@ -38,12 +41,16 @@ Chunk* World::getChunkAt(int x, int y, int z){
 }
 
 void World::drawAt(int x, int y, int z){
-	for (int ix = -2; ix < 2; ix++){
-		for (int iy = -2; iy < 2; iy++){
-			for (int iz = -2; iz < 2; iz++){
-			
+	for (int ix = 0; ix < 4; ix++){
+		for (int iy = 0; iy < 1; iy++){
+			for (int iz = 0; iz < 4; iz++){
+				//printf("%i %i %i\n",ix,iy,iz);
 				Chunk * c = getChunkAt(ix, iy, iz);
+				//printf("Chunk done got\n");
+				glPushMatrix();
+				glTranslatef(ix*(CHUNK_SIZE-1),iy*(CHUNK_SIZE-1),iz*(CHUNK_SIZE-1));
 				if (c!=NULL) c->draw();
+				glPopMatrix();
 				
 			}
 		}

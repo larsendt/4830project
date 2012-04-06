@@ -1,6 +1,7 @@
 #include <vector>
 #include <map>
 #include "Chunk.h"
+#include "MapGen.h"
 
 #ifndef WORLD
 #define WORLD
@@ -15,6 +16,7 @@ class World{
 	
 		Chunk * getChunkAt(int x, int y, int z);
 		void drawAt(int x, int y, int z);
+		MapGen m_gen;
 	
 	private:
 		
