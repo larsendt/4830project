@@ -1,17 +1,5 @@
-README, PA 8: Multitexturing
-
-Time taken: ~7 hours
-
-Runs fine on my two ATI card machines, but there's always a possibility of different errors on nvidia stuff
-
 Controls:
 	up/down arrow keys - move the ball forward and backwards.
 	w/a/s/d - look around.
-	space/x - jump/lower the ball.
-	
-Things to look for / at:
-	
-	-NOTE- the vast bulk of the time was spent on trying to create an automatic, three-dimensional unwrapping of terrain (triplanar texturing) provided by this link: http://developer.nvidia.com/node/158. I realized too late that it would take more time than I had to implement, however. 
 
-	I use a bit of multitexturing to create an ambient effect in the shadows. The effect follows the countour of the west-sloping terrain, which is itself a texture. 
-
+	
