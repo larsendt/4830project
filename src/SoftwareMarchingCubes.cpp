@@ -6,7 +6,7 @@
 #include "MCLookupTable.h"
 
 
-SoftwareMarchingCubes::SoftwareMarchingCubes()
+/*SoftwareMarchingCubes::SoftwareMarchingCubes()
 {
 }
 
@@ -179,7 +179,7 @@ void SoftwareMarchingCubes::runOutToMesh(MeshObject * mesh)
 	}*/
 	
 	
-	printf("SoftwareMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, m_dim*m_dim*m_dim*12, ((float)vx_count/(m_dim*m_dim*m_dim*12))*100);
+	/*printf("SoftwareMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, m_dim*m_dim*m_dim*12, ((float)vx_count/(m_dim*m_dim*m_dim*12))*100);
 	
 	mesh->setInterleaved(vertices, vx_count-1, indices, vx_count-1);
 	
@@ -219,4 +219,4 @@ COORD3D SoftwareMarchingCubes::vInterpolation(unsigned int isolevel,
 	
 	return p;
 }
-
+*/
