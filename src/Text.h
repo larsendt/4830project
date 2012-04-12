@@ -2,12 +2,25 @@
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #include "Shader.h"
-#include "include/ft2build.h"
+#include <ft2build.h>
 #include FT_FREETYPE_H
 
 #ifndef TEXT_
 #define TEXT_
 
+void setFontColor(float r, float g, float b, float a = 1.0);
+
+void setFontSize(int size);
+
+void initFT();
+
+void initFont(char* font);
+
+void render_text(const char *text, float x, float y, float sx, float sy);
+
+void drawString(const char * text, int x, int y);
+
+void resizeFonts(float x, float y);
 
 struct point {
 	GLfloat x;
@@ -138,18 +151,6 @@ struct atlas {
 	}
 };
 
-void setFontColor(float r, float g, float b, float a = 1.0);
 
-void setFontSize(int size);
-
-void initFT();
-
-void initFont(char* font);
-
-void render_text(const char *text, float x, float y, float sx, float sy);
-
-void drawString(const char * text, int x, int y);
-
-void resizeFonts(float x, float y);
 
 #endif
