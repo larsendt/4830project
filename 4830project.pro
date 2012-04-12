@@ -7,6 +7,7 @@ TARGET =
 DEPENDPATH += . src
 INCLUDEPATH += . /usr/local/cuda/include/
 INCLUDEPATH += /opt/AMDAPP/include/
+INCLUDEPATH += /usr/include/freetype2/
 CONFIG -= qt
 CONFIG += debug
 CFLAGS += -Wall -Wextra
