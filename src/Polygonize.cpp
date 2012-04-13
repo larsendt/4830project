@@ -2,9 +2,7 @@
 
 #include "MCLookupTable.h"
 
-MeshObject * convertToMesh(MeshObject * mesh, unsigned char * voxels, int xsize, int ysize, int zsize, float spacing, unsigned char isolevel){
-
-	
+MeshObject * convertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float spacing, unsigned char isolevel){
 
 	COORD3D cube[8];
 	int index = 0;
@@ -31,11 +29,11 @@ MeshObject * convertToMesh(MeshObject * mesh, unsigned char * voxels, int xsize,
 	int vx_count = 0;
 	bool color_flag = false;
 	
-	for(int x = 0; x < xsize-1; x++)
+	for(int x = 0; x < dim-1; x++)
 	{
-		for(int y = 0; y < ysize-1; y++)
+		for(int y = 0; y < dim-1; y++)
 		{
-			for(int z = 0; z < zsize-1; z++)
+			for(int z = 0; z < dim-1; z++)
 			{
 				unsigned char noisevals[8];
 				unsigned int indices1d[8];
@@ -43,10 +41,7 @@ MeshObject * convertToMesh(MeshObject * mesh, unsigned char * voxels, int xsize,
 				
 				for(int i = 0; i < 8; i++)
 				{
-					indices1d[i] = index1D(x+cube[i].x, y+cube[i].y, z+cube[i].z,
-											 xsize, ysize, zsize);
-					noisevals[i] = voxels[indices1d[i]];
-					
+					noisevals[i] = voxels.at(x+cube[i].x, y+cube[i].y, z+cube[i].z); 
 					if(noisevals[i] < isolevel) cubeindex |= (unsigned char)pow(2, i);
 				}
 			
@@ -74,18 +69,18 @@ MeshObject * convertToMesh(MeshObject * mesh, unsigned char * voxels, int xsize,
 						
 						COORD2D xy;
 						
-						xy.s = (float)c.x/(float)xsize;
-						xy.t = (float)c.y/(float)ysize;
+						xy.s = (float)c.x/(float)dim;
+						xy.t = (float)c.y/(float)dim;
 						
 						COORD2D xz;
 						
-						xz.s = (float)c.x/(float)xsize;
-						xz.t = (float)c.z/(float)zsize;
+						xz.s = (float)c.x/(float)dim;
+						xz.t = (float)c.z/(float)dim;
 						
 						COORD2D yz;
 						
-						yz.s = (float)c.y/(float)ysize;
-						yz.t = (float)c.z/(float)zsize;
+						yz.s = (float)c.y/(float)dim;
+						yz.t = (float)c.z/(float)dim;
 						
 						COLOR color;
 						
@@ -119,22 +114,12 @@ MeshObject * convertToMesh(MeshObject * mesh, unsigned char * voxels, int xsize,
 		}
 	}
 	
-	printf("SoftwareMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, xsize*ysize*zsize*12, ((float)vx_count/(xsize*ysize*zsize*12))*100);
+	printf("SoftwareMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, dim*dim*dim*12, ((float)vx_count/(dim*dim*dim*12))*100);
 	
 	//// CREATE MESH OBJECT
 	
 	mesh->setInterleaved(vertices, vx_count-1, indices, vx_count-1);
 	return mesh;
-}
-
-int index1D(int x, int y, int z, int xsize, int ysize, int zsize)
-{
-	int i = (xsize * xsize * x) + (xsize * y) + z; // NEED TO FIX THIS
-	if(i >= xsize * ysize * zsize)
-	{
-		fprintf(stderr, "polygonize error: invalid 1d index %d for x=%d y=%d z=%d, dim=%d\n", i, x, y, z, xsize);
-	}
-	return i;
 }
 
 COORD3D vInterpolation(unsigned int isolevel,

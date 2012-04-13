@@ -8,7 +8,7 @@
 #include <math.h>
 
 
-class SoftwareMarchingCubes
+/*class SoftwareMarchingCubes
 {
 	public:
 		SoftwareMarchingCubes();
@@ -34,6 +34,6 @@ class SoftwareMarchingCubes
 								 
 		COORD3D getEdgeVertex(int edgenum);
 		
-};
+};*/
 
 #endif

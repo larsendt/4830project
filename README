@@ -1,0 +1,12 @@
+4830 Final Project
+Dane Larsen and Theodore Hoff
+
+Controls:
+	up arrow: increase detail level (will eventually cause the program to die from insufficient resources)
+	down arrow: decrease detail level
+	scroll wheel: zoom
+	click+drag: rotate
+	m: wireframe mode
+	n: solid mode
+
+	

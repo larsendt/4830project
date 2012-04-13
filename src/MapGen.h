@@ -2,12 +2,14 @@
 /// MapGen.h
 ///////////////
 
-#include "OCL3DFBMNoise.h"
-#include "Types.h"
-#include <stdio.h>
-
 #ifndef MAPGEN
 #define MAPGEN
+
+#include "CaveNoise.h"
+#include "HeightNoise.h"
+#include "Types.h"
+#include <stdio.h>
+#include "VoxelCube.h"
 
 class MapGen{
 
@@ -15,9 +17,7 @@ class MapGen{
 		MapGen();
 		~MapGen();
 		unsigned int shader;
-		unsigned char * genChunk(int x, int y, int z);
-	private:
-		OCL3DFBMNoise m_n;
+		VoxelCube genChunk(int x, int y, int z);
 };
 
 #endif

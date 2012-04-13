@@ -9,10 +9,11 @@
 
 #include "MeshObject.h"
 #include "Types.h"
+#include "VoxelCube.h"
 #include <math.h>
 
-MeshObject * convertToMesh(MeshObject * mesh, unsigned char * voxels, int xsize, int ysize, int zsize, float spacing = 1.0, unsigned char isolevel = 128);
-int index1D(int x, int y, int z, int xsize, int ysize, int zsize);
+MeshObject * convertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float spacing = 1.0, unsigned char isolevel = 128);
+
 COORD3D vInterpolation(unsigned int isolevel,
 								 COORD3D p1,
 								 COORD3D p2,

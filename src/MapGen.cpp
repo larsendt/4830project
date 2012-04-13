@@ -4,20 +4,17 @@ MapGen::MapGen(){}
 
 MapGen::~MapGen(){}
 
-unsigned char * MapGen::genChunk(int x, int y, int z){
-
+VoxelCube MapGen::genChunk(int x, int y, int z){
+	CaveNoise cn;
+	HeightNoise hn;
 	
-	int size = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE;
-	unsigned char * n_data = new unsigned char[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
-	float pos[3] = {x,y,z};
+	int offset[3] = {x, y, z};
+	VoxelCube hndata = hn.noise(CHUNK_SIZE, offset, 1, 1.0, 1.0, 0);
+	VoxelCube cndata = cn.noise(CHUNK_SIZE, offset, 1, 2.0, 2.0, 0, 1.0);
+	VoxelCube noisedata = hndata - cndata;
+	noisedata.addFloor();
 	
-	if (!m_n.noise(CHUNK_SIZE, n_data, pos)){
-		fprintf(stderr, "Noise gen failed\n");
-		exit(1);
-	}
-	
-	return n_data;
-	
+	return noisedata;
 }
 
 

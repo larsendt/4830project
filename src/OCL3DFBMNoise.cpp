@@ -3,13 +3,13 @@
 
 OCL3DFBMNoise::OCL3DFBMNoise()
 {
-	m_kernel = new OCLKernel("kernels/fbmnoise.cl", "FBMNoiseArray3d");
+	m_kernel = new OCLKernel("kernels/2dnoise.cl", "FBMNoiseArray2d");
 }
 
 bool OCL3DFBMNoise::noise(int dim, unsigned char* data, float pos[3])
 {
-	float bias[4] = {pos[0],pos[1],pos[2], 256};
-	float scale[4] = {2, 2, 2, 2};
+	float bias[2] = {pos[0],pos[1]};
+	float scale[2] = {2, 2};
 	float amplitude = 1;
 
 	OCLArgument args[5];
@@ -44,7 +44,7 @@ bool OCL3DFBMNoise::noise(int dim, unsigned char* data, float pos[3])
 	a.is_buffer = false;
 	args[4] = a;
 	
-	if(!m_kernel->run(5, args, 1, buffers, dim*dim*dim, 1))
+	if(!m_kernel->run(5, args, 1, buffers, dim, dim))
 	{
 		fprintf(stderr, "Error: fbm 3d run failed\n");
 		return false;
