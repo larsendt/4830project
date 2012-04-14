@@ -55,11 +55,12 @@ VoxelCube& VoxelCube::operator-(VoxelCube other)
 		{
 			for(int k = 0; k < m_dim; k++)
 			{
-				unsigned char diff = 0;
-				if(at(i, j, k) > other.at(i, j, k))
-					diff = at(i, j, k) - other.at(i, j, k);
-					
-				result.set(i, j, k, diff);
+				//unsigned char diff = 0;
+				///if(at(i, j, k) > other.at(i, j, k))
+					//diff = at(i, j, k) - other.at(i, j, k);
+				
+				if(other.at(i, j, k) > 128)
+					result.set(i, j, k, 0);
 			}
 		}
 	}
