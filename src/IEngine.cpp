@@ -20,7 +20,7 @@ IEngine::IEngine(int argc, char** argv)
 	
 	
 	unsigned int tex2 = loadImage((char*)"tex/forest.jpg");
-	unsigned int tex = loadImage((char*)"tex/lavarock.jpg");
+	unsigned int tex = loadImage((char*)"tex/sand.jpg");
 	
 	sh = new Shader((char*)"shaders/triplanar.vert", (char*)"shaders/triplanar.frag");
 	
@@ -59,6 +59,7 @@ void IEngine::initGL(int argc, char** argv)
 	glLineWidth(4.0);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_NORMALIZE);
 }
 
 void IEngine::checkKeys(){
@@ -95,14 +96,36 @@ void IEngine::checkKeys(){
 		c_speed.y += .001*y;
 		c_speed.z += .001*z;
 	}
-	
-	if (down){
+	else if (down){
 		float z = (cos(mradians(yaw)))*cos(mradians(pitch));
 		float y = -(sin(mradians(pitch)));
 		float x = (sin(mradians(yaw)))*cos(mradians(pitch));
 		c_speed.x += .001*x;
 		c_speed.y += .001*y;
 		c_speed.z += .001*z;
+	}
+	else
+	{
+		if(c_speed.x > 0.002)
+			c_speed.x -= 0.001;
+		else if(c_speed.x < -0.002)
+			c_speed.x += 0.001;
+		else
+			c_speed.x = 0;
+			
+		if(c_speed.y > 0.002)
+			c_speed.y -= 0.001;
+		else if(c_speed.y < -0.002)
+			c_speed.y += 0.001;		
+		else
+			c_speed.y = 0;
+		
+		if(c_speed.z > 0.002)
+			c_speed.z -= 0.001;
+		else if(c_speed.z < -0.002)
+			c_speed.z += 0.001;
+		else
+			c_speed.z = 0;
 	}
 	
 }

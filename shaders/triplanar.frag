@@ -6,8 +6,7 @@ varying vec2 yz;
 varying vec3 n;
 
 void main(){
-
-	//float intensity = max(dot(vec3(0,1,0),normalize(n)),0.05);
+	float intensity = max(dot(vec3(0, 1, -2), normalize(n)) * 1.7, 0.2);
 	vec3 blend_weights = abs(n.xyz);
 	blend_weights = (blend_weights - vec3(.2)) * 7.0;
 	blend_weights = max(blend_weights, vec3(0,0,0));
@@ -26,6 +25,6 @@ void main(){
 					t2 * vec4(blend_weights.yyy,1) +
 					t3 * vec4(blend_weights.zzz,1);
 					
-	gl_FragColor = vec4(blended_color/*intensity*/);
+	gl_FragColor = vec4(normalize(blended_color)*intensity);
 	
 }

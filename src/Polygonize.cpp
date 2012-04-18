@@ -62,10 +62,28 @@ MeshObject * convertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float s
 						c.y = (y*spacing) + (temp.y*spacing);
 						c.z = (z*spacing) + (temp.z*spacing);
 						
+						// n is a placeholder normal indicating the approximate direction the normal should point.
+						// The vertex table does not define triangles in a consistent way, so the vector
+						// cross product doesn't quite work. This normal should be pointing out of the terrain, 
+						// where out is defined as voxels >= 128. If the dot product of this vector and the
+						// normal obtained from the cross product is greater than zero, then the cross
+						// product is correct. Otherwise, the normal obtained from the cross product should
+						// be reversed
 						COORD3D n;
-						n.x = 0;
-						n.y = 1;
-						n.z = 0;
+					
+						int normid = normalIndexTable[cubeindex];
+						if(normid < 255)
+						{
+							n.x = normalTable[normid][0];
+							n.y = normalTable[normid][1];
+							n.z = normalTable[normid][2];
+						}
+						else
+						{
+							n.x = 0;
+							n.y = 1;
+							n.z = 0;
+						}
 						
 						COORD2D xy;
 						
