@@ -2,6 +2,8 @@
 ///           IEngine.h
 //////////////////////////////////////////
 
+#pragma once
+
 #define GL_GLEXT_PROTOTYPES
 #include <math.h>
 #include "Shader.h"
@@ -13,10 +15,6 @@
 #include "World.h"
 #include "PostProcess.h"
 #include "Vec3.h"
-
-
-#ifndef IEngine_H
-#define IEngine_H
 
 #define PI 3.1415
 #define mradians(i) (i/180.0 * PI)
@@ -57,5 +55,3 @@ class IEngine
 		vec3 c_pos;
 		vec3 c_speed;
 };
-
-#endif

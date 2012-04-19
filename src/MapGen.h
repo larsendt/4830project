@@ -2,8 +2,7 @@
 /// MapGen.h
 ///////////////
 
-#ifndef MAPGEN
-#define MAPGEN
+#pragma once
 
 #include "CaveNoise.h"
 #include "HeightNoise.h"
@@ -23,4 +22,3 @@ class MapGen{
 		int seed;
 };
 
-#endif

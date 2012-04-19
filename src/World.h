@@ -1,10 +1,9 @@
+#pragma once
+
 #include <vector>
 #include <map>
 #include "Chunk.h"
 #include "MapGen.h"
-
-#ifndef WORLD
-#define WORLD
 
 class World{
 	
@@ -25,5 +24,3 @@ class World{
 		Chunk ** chunks;
 	
 };
-
-#endif

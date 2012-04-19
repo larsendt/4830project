@@ -19,7 +19,7 @@ IEngine::IEngine(int argc, char** argv)
 	p.init(m_window->GetWidth(), m_window->GetHeight());
 	
 	
-	unsigned int tex2 = loadImage((char*)"tex/forest.jpg");
+	unsigned int tex2 = loadImage((char*)"tex/grass.png");
 	unsigned int tex = loadImage((char*)"tex/sand.jpg");
 	
 	sh = new Shader((char*)"shaders/triplanar.vert", (char*)"shaders/triplanar.frag");
@@ -76,16 +76,16 @@ void IEngine::checkKeys(){
 	bool down = input.IsKeyDown(sf::Key::Down);
 	
 	if (a){
-		yawspeed += .03;
+		yaw += .3;
 	}
 	if (d){
-		yawspeed -= .03;
+		yaw -= .3;
 	}
 	if (w){
-		pitchspeed += .03;
+		pitch += .3;
 	}
 	if (s){
-		pitchspeed -= .03;
+		pitch -= .3;
 	}
 	
 	if (up){
@@ -106,26 +106,11 @@ void IEngine::checkKeys(){
 	}
 	else
 	{
-		if(c_speed.x > 0.002)
-			c_speed.x -= 0.001;
-		else if(c_speed.x < -0.002)
-			c_speed.x += 0.001;
-		else
-			c_speed.x = 0;
-			
-		if(c_speed.y > 0.002)
-			c_speed.y -= 0.001;
-		else if(c_speed.y < -0.002)
-			c_speed.y += 0.001;		
-		else
-			c_speed.y = 0;
-		
-		if(c_speed.z > 0.002)
-			c_speed.z -= 0.001;
-		else if(c_speed.z < -0.002)
-			c_speed.z += 0.001;
-		else
-			c_speed.z = 0;
+		float len;
+		if ((len = c_speed.length()) > .01){
+			c_speed = c_speed.normalize() * (len-.01);
+		}
+		else c_speed = vec3(0,0,0);
 	}
 	
 }

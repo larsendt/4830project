@@ -1,5 +1,4 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <map>
@@ -15,5 +14,3 @@ class Texture
     private:
         Texture();
 };
-
-#endif

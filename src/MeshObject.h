@@ -1,11 +1,10 @@
+#pragma once
+
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glu.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "Types.h"
-
-#ifndef MESHOBJECT
-#define MESHOBJECT
 
 #define BUFFER_OFFSET(i) ((char*) NULL + i)
 
@@ -54,5 +53,3 @@ class MeshObject{
 		
 		unsigned int ibo_elements;
 };
-
-#endif

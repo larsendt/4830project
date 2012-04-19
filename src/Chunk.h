@@ -1,12 +1,9 @@
-
+#pragma once
 
 #include "MeshObject.h"
 #include "Polygonize.h"
 #include "MapGen.h"
 #include "Types.h"
-
-#ifndef CHUNK
-#define CHUNK
 
 class Chunk{
 	public:
@@ -24,5 +21,3 @@ class Chunk{
 		MeshObject * m;
 		void make();
 };
-
-#endif

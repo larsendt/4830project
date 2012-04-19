@@ -1,9 +1,8 @@
-#ifndef TYPES_H
-#define TYPES_H
+#pragma once
 
 #define meter 1
 #define kilometer 1000
-#define CHUNK_SIZE 64
+#define CHUNK_SIZE 32
 
 /*
 	All complex types that cross class boundaries are defined here
@@ -47,5 +46,3 @@ struct TRIANGLE{
 	VERTEX * b;
 	VERTEX * c;
 };
-
-#endif
