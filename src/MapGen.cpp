@@ -19,7 +19,7 @@ VoxelCube MapGen::genChunk(int x, int y, int z){
 	VoxelCube hndata = hn.noise(CHUNK_SIZE, offset, 1, 1.0, 1.0, seed);
 	VoxelCube cndata = cn.noise(CHUNK_SIZE, offset, 1, 1.0, 0.9, seed, 1.0);
 	VoxelCube noisedata = hndata - cndata;
-	noisedata.addFloor();
+	//noisedata.addFloor();
 	
 	return noisedata;
 }

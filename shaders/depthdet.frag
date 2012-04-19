@@ -27,5 +27,5 @@ void main()
     else edgeDepth = 0;
 	vec4 color = texture2D(fbo_texture,f_texcoord);
 	
-	gl_FragColor =  color + vec4(edgeDepth);
+	gl_FragColor =  color - vec4(edgeDepth);
 }

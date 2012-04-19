@@ -52,6 +52,7 @@ void IEngine::initGL(int argc, char** argv)
 {
 	m_window = new sf::Window(sf::VideoMode(800, 600, 32), "IEngine");
 	m_clock = new sf::Clock();
+	glClearColor(.6,.6,1.0,1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glPointSize(5.0);
