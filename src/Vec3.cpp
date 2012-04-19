@@ -86,4 +86,5 @@ vec3 cross(vec3 a, vec3 b){
 	double x = (a.y*b.z)-(a.z*b.y);
 	double y = (a.z*b.x)-(a.x*b.z);
 	double z = (a.x*b.y)-(a.y*b.x);
+	return vec3(x,y,z);
 }

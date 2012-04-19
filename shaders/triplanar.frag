@@ -17,9 +17,9 @@ void main(){
 	vec2 yfacing = xz;
 	vec2 zfacing = xy;
 
-	vec4 t1 = vec4(1,0,0,1);//texture2D(tex, xfacing);
-	vec4 t2 = vec4(0,0,1,1);//texture2D(tex2, yfacing);
-	vec4 t3 = vec4(1,0,0,1);//texture2D(tex, zfacing);
+	vec4 t1 = texture2D(tex, xfacing);
+	vec4 t2 = texture2D(tex2, yfacing);
+	vec4 t3 = texture2D(tex, zfacing);
 	
 	blended_color = t1 * vec4(blend_weights.xxx,1) +
 					t2 * vec4(blend_weights.yyy,1) +

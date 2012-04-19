@@ -2,14 +2,12 @@
 //Polygonize.h
 /////////////
 
-
-#ifndef POLYGONIZE
-#define POLYGONIZE
-
+#pragma once
 
 #include "MeshObject.h"
 #include "Types.h"
 #include "VoxelCube.h"
+#include "Vec3.h"
 #include <math.h>
 
 MeshObject * convertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float spacing = 1.0, unsigned char isolevel = 128);
@@ -20,4 +18,3 @@ COORD3D vInterpolation(unsigned int isolevel,
 								 unsigned char v1,
 								 unsigned char v2);
 								 
-#endif

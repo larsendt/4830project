@@ -27,7 +27,6 @@ MeshObject * convertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float s
 	VERTEX* vertices = (VERTEX*) malloc(max_vxs * sizeof(*vertices));
 	GLuint* indices = (GLuint*) malloc(max_vxs * sizeof(*indices)); 
 	int vx_count = 0;
-	bool color_flag = false;
 	
 	for(int x = 0; x < dim-1; x++)
 	{
@@ -49,7 +48,9 @@ MeshObject * convertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float s
 				{
 					unsigned char* ids = indexTable[cubeindex];
 					int idcount = indexCountTable[cubeindex];
-	
+					COORD3D cachedCoords[16];
+					int tmpcount = vx_count;
+					
 					for(int i = 0; i < idcount; i++)
 					{
 						COORD3D c;
@@ -62,28 +63,7 @@ MeshObject * convertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float s
 						c.y = (y*spacing) + (temp.y*spacing);
 						c.z = (z*spacing) + (temp.z*spacing);
 						
-						// n is a placeholder normal indicating the approximate direction the normal should point.
-						// The vertex table does not define triangles in a consistent way, so the vector
-						// cross product doesn't quite work. This normal should be pointing out of the terrain, 
-						// where out is defined as voxels >= 128. If the dot product of this vector and the
-						// normal obtained from the cross product is greater than zero, then the cross
-						// product is correct. Otherwise, the normal obtained from the cross product should
-						// be reversed
-						COORD3D n;
-					
-						int normid = normalIndexTable[cubeindex];
-						if(normid < 255)
-						{
-							n.x = normalTable[normid][0];
-							n.y = normalTable[normid][1];
-							n.z = normalTable[normid][2];
-						}
-						else
-						{
-							n.x = 0;
-							n.y = 1;
-							n.z = 0;
-						}
+						cachedCoords[i] = c;
 						
 						COORD2D xy;
 						
@@ -116,7 +96,6 @@ MeshObject * convertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float s
 						}
 				
 						vertices[vx_count].c = c;
-						vertices[vx_count].n = n;
 						vertices[vx_count].xy = xy;
 						vertices[vx_count].xz = xz;
 						vertices[vx_count].yz = yz;
@@ -125,8 +104,96 @@ MeshObject * convertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float s
 						vx_count ++;
 					}
 					
+					for (int i = 0; i< idcount; i++){
+						// n is a placeholder normal indicating the approximate direction the normal should point.
+						// The vertex table does not define triangles in a consistent way, so the vector
+						// cross product doesn't quite work. This normal should be pointing out of the terrain, 
+						// where out is defined as voxels >= 128. If the dot product of this vector and the
+						// normal obtained from the cross product is greater than zero, then the cross
+						// product is correct. Otherwise, the normal obtained from the cross product should
+						// be reversed
+						COORD3D n;
 					
-					color_flag = false;
+						vec3 va, vb, vc;
+				
+						switch (i%3){
+							case 0:
+								va = vec3(cachedCoords[i].x, 
+										cachedCoords[i].y, 
+										cachedCoords[i].z);
+								vb = vec3(cachedCoords[i+1].x, 
+										cachedCoords[i+1].y, 
+										cachedCoords[i+1].z);
+								vc = vec3(cachedCoords[i+2].x, 
+										cachedCoords[i+2].y, 
+										cachedCoords[i+2].z);
+								break;
+							case 1:
+								va = vec3(cachedCoords[i-1].x, 
+										cachedCoords[i-1].y, 
+										cachedCoords[i-1].z);
+								vb = vec3(cachedCoords[i].x, 
+										cachedCoords[i].y, 
+										cachedCoords[i].z);
+								vc = vec3(cachedCoords[i+1].x, 
+										cachedCoords[i+1].y, 
+										cachedCoords[i+1].z);
+								break;
+							case 2:
+								va = vec3(cachedCoords[i-2].x, 
+										cachedCoords[i-2].y, 
+										cachedCoords[i-2].z);
+								vb = vec3(cachedCoords[i-1].x, 
+										cachedCoords[i-1].y, 
+										cachedCoords[i-1].z);
+								vc = vec3(cachedCoords[i].x, 
+										cachedCoords[i].y, 
+										cachedCoords[i].z);
+								break;
+						}
+						
+						vec3 apn; // approximate normal
+						
+						int normid = normalIndexTable[cubeindex];
+						if(normid < 255)
+						{
+							apn.x = normalTable[normid][0];
+							apn.y = normalTable[normid][1];
+							apn.z = normalTable[normid][2];
+						}
+						else
+						{
+							apn.x = 0;
+							apn.y = 1;
+							apn.z = 0;
+						}
+						
+						vec3 u, v, w;
+						
+						u = vc-vb;
+						v = vc-va;
+						
+						w = cross(u,v);
+						
+						w = w.normalize();
+						
+						if (w * apn <=  0){
+							w = w*(-1);
+						}
+						
+						/*printf("a: %f %f %f\n", va.x, va.y, va.z);
+						printf("b: %f %f %f\n", vb.x, vb.y, vb.z);
+						printf("c: %f %f %f\n", vc.x, vc.y, vc.z);
+						printf("-----------------------------\n");
+						printf("u: %f %f %f\n", u.x, u.y, u.z);
+						printf("v: %f %f %f\n", v.x, v.y, v.z);
+						printf("normal: %f %f %f\n", w.x,w.y,w.z);*/
+						
+						n.x = w.x; n.y = w.y; n.z = w.z;
+						vertices[tmpcount].n = n;
+						tmpcount++;
+						//getchar();
+					}
 				}
 			}
 		}
