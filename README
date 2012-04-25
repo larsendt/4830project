@@ -1,12 +1,30 @@
-4830 Final Project
+4830 Final Project - Project Review
 Dane Larsen and Theodore Hoff
 
 Controls:
-	up arrow: increase detail level (will eventually cause the program to die from insufficient resources)
-	down arrow: decrease detail level
-	scroll wheel: zoom
-	click+drag: rotate
-	m: wireframe mode
-	n: solid mode
-
+	up arrow - speeds up in view direction
+	down arrow - slows down in view direction
+	w/a/s/d - look around
 	
+To run / make:
+	qmake 4830project.git;
+	make;
+	./4830project
+	
+	- NOTE - 
+	We do use the freetype-3 development libraries, but you should be able to run the executable right off the bat.
+
+Things to look at:
+	
+	Voxel creation - 
+		In order to create terrain that seems natural, we combine two methods: First, we create a "voxel cube" out of a heightmap heightmap that fills in all voxels below the generated height. Second, we create another voxel cube out of an OpenCL 3D noise generation. The heightmap has the 3d noise subtracted from it, appearing to create natural caves and valleys.
+	
+	Marching cubes - 
+		The voxel cube from the previous step is then passed into our software Marching Cubes implemenetation. It's slow, but it works! The normals are created through the dot product of the cross product of each triangle with the known normals for each possible face. If the dot product is negative, the normal is negative of the cross product.
+		
+	Triplanar texturing - 
+		It's still a work in progress. I think that the approach that we were using is a bit flawed, and the non-Garaud normals don't really help.
+		
+	"Water Reflection" - 
+		It's an early attempt at emulating the reflectiveness of water. Obviously the reflections aren't right, it was just an early attempt at the actual implementation behind it - a render of a framebuffer displayed on a texture. 
+		
