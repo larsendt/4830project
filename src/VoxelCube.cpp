@@ -107,5 +107,37 @@ void VoxelCube::addFloor()
 	}
 }
 
-
+void VoxelCube::fillBoundaries(bool xneg_bound, bool xpos_bound, bool yneg_bound, bool ypos_bound, bool zneg_bound, bool zpos_bound)
+{
+	for(int x = 0; x < m_dim; x++)
+	{
+		for(int y = 0; y < m_dim; y++)
+		{
+			for(int z = 0; z < m_dim; z++)
+			{
+				if(at(x, y, z) > 128)
+				{
+					if(xneg_bound && x == 0)
+						set(x, y, z, 0);
+						
+					if(xpos_bound && x == m_dim)
+						set(x, y, z, 0);
+						
+					if(yneg_bound && y == 0)
+						set(x, y, z, 0);
+						
+					if(ypos_bound && y == m_dim)
+						set(x, y, z, 0);
+						
+					if(zneg_bound && z == m_dim)
+						set(x, y, z, 0);
+						
+					if(zpos_bound && z == m_dim)
+						set(x, y, z, 0);
+						
+				}
+			}
+		}
+	}
+}
 

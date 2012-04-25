@@ -84,33 +84,33 @@ void IEngine::checkKeys(){
 	bool down = input.IsKeyDown(sf::Key::Down);
 	
 	if (a){
-		yaw += .3;
+		yaw += .6;
 	}
 	if (d){
-		yaw -= .3;
+		yaw -= .6;
 	}
 	if (w){
-		pitch += .3;
+		pitch += .6;
 	}
 	if (s){
-		pitch -= .3;
+		pitch -= .6;
 	}
 	
 	if (up){
 		float z = -(cos(mradians(yaw)))*(cos(mradians(pitch)));
 		float y = (sin(mradians(pitch)));
 		float x = -(sin(mradians(yaw)))*(cos(mradians(pitch)));
-		c_speed.x += .001*x;
-		c_speed.y += .001*y;
-		c_speed.z += .001*z;
+		c_speed.x += .002*x;
+		c_speed.y += .002*y;
+		c_speed.z += .002*z;
 	}
 	else if (down){
 		float z = (cos(mradians(yaw)))*cos(mradians(pitch));
 		float y = -(sin(mradians(pitch)));
 		float x = (sin(mradians(yaw)))*cos(mradians(pitch));
-		c_speed.x += .001*x;
-		c_speed.y += .001*y;
-		c_speed.z += .001*z;
+		c_speed.x += .002*x;
+		c_speed.y += .002*y;
+		c_speed.z += .002*z;
 	}
 	else
 	{

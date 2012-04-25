@@ -6,7 +6,7 @@ varying vec2 yz;
 varying vec3 n;
 
 void main(){
-	float intensity = max(dot(vec3(0, 1, -2), normalize(n)) * 1.7, 0.2);
+	float intensity = max(dot(vec3(0, 1, -2), normalize(n)) * 1.7, 0.5);
 	vec3 blend_weights = abs(n.xyz);
 	blend_weights = (blend_weights - vec3(.2)) * 7.0;
 	blend_weights = max(blend_weights, 0);

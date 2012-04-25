@@ -16,6 +16,7 @@ class VoxelCube
 		int index1d(int x, int y, int z);
 		void decompose1dIndex(int index, int* x, int* y, int* z);
 		void addFloor();
+		void fillBoundaries(bool xneg_bound, bool xpos_bound, bool yneg_bound, bool ypos_bound, bool zneg_bound, bool zpos_bound);
 		
 		unsigned char* data() { return m_data; }
 		int max1dIndex() { return m_dim * m_dim * m_dim; }
