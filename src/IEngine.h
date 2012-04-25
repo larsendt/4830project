@@ -48,6 +48,7 @@ class IEngine
 		PostProcess p;
 		Shader * sh;
 		Shader * sh2;
+		Shader * waterShader;
 		Water * water;
 		float pitchspeed;
 		float pitch;
@@ -56,4 +57,7 @@ class IEngine
 		
 		vec3 c_pos;
 		vec3 c_speed;
+		
+		GLuint tex;
+		GLuint tex2;
 };

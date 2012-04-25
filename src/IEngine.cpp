@@ -26,10 +26,11 @@ IEngine::IEngine(int argc, char** argv)
 	p.setShader(fbo_shader);
 	p.init(m_window->GetWidth(), m_window->GetHeight());
 	
-	unsigned int tex2 = loadImage((char*)"tex/grass.png");
-	unsigned int tex = loadImage((char*)"tex/sand.jpg");
+	tex2 = loadImage((char*)"tex/grass.png");
+	tex = loadImage((char*)"tex/sand.jpg");
 	sh2 = new Shader((char *) "shaders/watertriplanar.vert", (char*)"shaders/watertriplanar.frag");
 	sh = new Shader((char*)"shaders/triplanar.vert", (char*)"shaders/triplanar.frag");
+	waterShader = new Shader((char*)"shaders/waterripple.vert", (char*)"shaders/waterripple.frag");
 	
 	sh->bind();
 	
@@ -195,21 +196,47 @@ void IEngine::drawScene()
 	float ref_pitch = pitch;
 	vec3 ref_pos = water->getReflectionPosition(c_pos, ref_pitch);
 	
+	//////////////////////////////////////
+	/// Draw the inverted terrain
+	//////////////////////////////////////
 	glPushMatrix();
 	glLoadIdentity();
 	
-	glScalef(1,1,1);
 	glRotatef(-pitch, 1,0,0);
 	glRotatef(-yaw, 0,1,0);
 	glTranslatef(-c_pos.x, -c_pos.y, -c_pos.z);
 	//water->protectDepthBuffer();
 	//water->stencilBuffer(c_pos, pitch, yaw);
-	
-	glUseProgram(sh2->getID());
+		
+	sh2->bind();
 	w.drawAt(0,0,0);
+	sh2->release();
+	
+	//////////////////////////////////////////
+	/// Draw the water polygon
+	//////////////////////////////////////////
+	
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	glColor4f(0.0, 0.05, 0.1, 0.5);
+	glBegin(GL_POLYGON);
+	glVertex3f(-1000, 0, -1000);
+	glVertex3f(1000, 0, -1000);
+	glVertex3f(1000, 0, 1000);
+	glVertex3f(-1000, 0, 1000);
+	glEnd();
+	
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	
 	glPopMatrix();
 	
+		
+	//////////////////////////////////////
+	///  Draw the primary terrain
+	//////////////////////////////////////
 	glPushMatrix();
 	glLoadIdentity();
 	
