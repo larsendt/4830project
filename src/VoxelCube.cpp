@@ -120,19 +120,19 @@ void VoxelCube::fillBoundaries(bool xneg_bound, bool xpos_bound, bool yneg_bound
 					if(xneg_bound && x == 0)
 						set(x, y, z, 0);
 						
-					if(xpos_bound && x == m_dim)
+					if(xpos_bound && x >= m_dim-1)
 						set(x, y, z, 0);
 						
 					if(yneg_bound && y == 0)
 						set(x, y, z, 0);
 						
-					if(ypos_bound && y == m_dim)
+					if(ypos_bound && y >= m_dim-1)
 						set(x, y, z, 0);
 						
-					if(zneg_bound && z == m_dim)
+					if(zneg_bound && z == 0)
 						set(x, y, z, 0);
 						
-					if(zpos_bound && z == m_dim)
+					if(zpos_bound && z >= m_dim-1)
 						set(x, y, z, 0);
 						
 				}

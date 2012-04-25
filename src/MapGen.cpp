@@ -21,9 +21,9 @@ VoxelCube MapGen::genChunk(int x, int y, int z){
 	VoxelCube noisedata = hndata - cndata;
 
 	bool xneg_bound = (x == 0);
-	bool xpos_bound = (x == 2); // change this if world dimensions change
+	bool xpos_bound = (x == 1); // change this if world dimensions change
 	bool zneg_bound = (z == 0);
-	bool zpos_bound = (z == 2); // also change this
+	bool zpos_bound = (z == 1); // also change this
 	bool yneg_bound = false; // not filling in y gaps
 	bool ypos_bound = false;
 	
