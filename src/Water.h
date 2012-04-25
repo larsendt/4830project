@@ -9,12 +9,12 @@ class Water{
 
 	public:
 		Water();
-		Water(int width, int height);
-		void setShader(unsigned int program);
+		void init(int width, int height);
+		void setShader(unsigned int program){shader = program;};
 		void render();
-		vec3 getReflectionPosition(vec3 camera_pos);
-		void bindReflection();
-		void unbindReflection();
+		vec3 getReflectionPosition(vec3 camera_pos, float &pitch);
+		void protectDepthBuffer();
+		void stencilBuffer(vec3 pos, float yaw, float pitch);
 	private:
 	
 		
@@ -26,9 +26,7 @@ class Water{
 		
 		unsigned int W, H;
 		
-		unsigned int fbo, fbo_texture;
-		
-		unsigned int vboshader;
+		unsigned int shader;
 		
 		unsigned int att_pp_vertex;
 		unsigned int uniform_tex;

@@ -2,7 +2,7 @@
 
 #define meter 1
 #define kilometer 1000
-#define CHUNK_SIZE 32
+#define CHUNK_SIZE 128
 
 /*
 	All complex types that cross class boundaries are defined here

@@ -182,7 +182,7 @@ void MeshObject::setShader(unsigned int program){
 
 void MeshObject::draw(){
 	
-	glUseProgram(c_shader);
+	//glUseProgram(c_shader);
 	
 	//printf("prev: %s\n", gluErrorString(glGetError()));
 	
@@ -260,5 +260,5 @@ void MeshObject::draw(){
 	glDisableVertexAttribArray(att_tex_yz);
 	glDisableVertexAttribArray(att_normal);
 	glDisableVertexAttribArray(att_vertex);
-	glUseProgram(0);
+	//glUseProgram(0);
 }

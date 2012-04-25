@@ -14,14 +14,21 @@ IEngine::IEngine(int argc, char** argv)
 	m_updateRate = 0.01;
 	
 	// TEST STUFF
+	
+	water = new Water();
+	
+	Shader * watershader = new Shader((char*)"shaders/water.vert",(char*)"shaders/water.frag");
+	
+	water->setShader(watershader->getID());
+	water->init(m_window->GetWidth(), m_window->GetHeight());
+	
 	Shader * fbo_shader = new Shader((char*)"shaders/pp.vert",(char*)"shaders/depthdet.frag");
 	p.setShader(fbo_shader);
 	p.init(m_window->GetWidth(), m_window->GetHeight());
 	
-	
 	unsigned int tex2 = loadImage((char*)"tex/grass.png");
 	unsigned int tex = loadImage((char*)"tex/sand.jpg");
-	
+	sh2 = new Shader((char *) "shaders/watertriplanar.vert", (char*)"shaders/watertriplanar.frag");
 	sh = new Shader((char*)"shaders/triplanar.vert", (char*)"shaders/triplanar.frag");
 	
 	sh->bind();
@@ -36,13 +43,13 @@ IEngine::IEngine(int argc, char** argv)
 	
 	sh->setUniform1i((char*)"tex", 2);
 	sh->setUniform1i((char*)"tex2", 3);
+	
 	w.m_gen.shader = sh->getID();
 	m_wireframe = false;
 	
-	
 	pitch = 0;
-	yaw = 0;
-	c_pos.x = 128; c_pos.y = 64; c_pos.z = 128;
+	yaw = -90;
+	c_pos.x = -32; c_pos.y = 10; c_pos.z = 96;
 	c_speed.x = 0; c_speed.y = 0; c_speed.z = 0;
 	
 	// END TEST
@@ -167,19 +174,58 @@ int IEngine::begin()
 
 void IEngine::drawScene()
 {
-	p.startDraw();
+	
+	
+	/*water->bindReflection();
+	
+	vec3 ref_pos = water->getReflectionPosition(c_pos, ref_pitch);
+	glPushMatrix();
+	glRotatef(-ref_pitch, 1,0,0);
+	glRotatef(-yaw, 0,1,0);
+	glTranslatef(-ref_pos.x, -ref_pos.y, -ref_pos.z);
+	w.drawAt(0,0,0);
+	glPopMatrix();
+	water->unbindReflection();*/
+	
+	//p.startDraw();
+	
 	if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	float ref_pitch = pitch;
+	vec3 ref_pos = water->getReflectionPosition(c_pos, ref_pitch);
+	
+	glPushMatrix();
+	glLoadIdentity();
+	
+	glScalef(1,1,1);
+	glRotatef(-pitch, 1,0,0);
+	glRotatef(-yaw, 0,1,0);
+	glTranslatef(-c_pos.x, -c_pos.y, -c_pos.z);
+	//water->protectDepthBuffer();
+	//water->stencilBuffer(c_pos, pitch, yaw);
+	
+	glUseProgram(sh2->getID());
+	w.drawAt(0,0,0);
+	
+	glPopMatrix();
+	
+	glPushMatrix();
 	glLoadIdentity();
 	
 	glRotatef(-pitch, 1,0,0);
 	glRotatef(-yaw, 0,1,0);
+
 	glTranslatef(-c_pos.x, -c_pos.y, -c_pos.z);
+
+	glUseProgram(sh->getID());
 	w.drawAt(0,0,0);
+
+	glPopMatrix();
 	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
-	p.draw();
+	//p.draw();
 	
 	
 }

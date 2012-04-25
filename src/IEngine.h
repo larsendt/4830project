@@ -15,6 +15,7 @@
 #include "World.h"
 #include "PostProcess.h"
 #include "Vec3.h"
+#include "Water.h"
 
 #define PI 3.1415
 #define mradians(i) (i/180.0 * PI)
@@ -46,7 +47,8 @@ class IEngine
 		
 		PostProcess p;
 		Shader * sh;
-		
+		Shader * sh2;
+		Water * water;
 		float pitchspeed;
 		float pitch;
 		float yawspeed; 
