@@ -20,10 +20,10 @@ VoxelCube MapGen::genChunk(int x, int y, int z){
 	VoxelCube cndata = cn.noise(CHUNK_SIZE, offset, 1, 1.0, 0.9, seed, 1.0);
 	VoxelCube noisedata = hndata - cndata;
 
-	bool xneg_bound = (x == -3);
-	bool xpos_bound = (x == 3); // change this if world dimensions change
-	bool zneg_bound = (z == -3);
-	bool zpos_bound = (z == 3); // also change this
+	bool xneg_bound = (x == WORLD_MIN);
+	bool xpos_bound = (x == WORLD_MAX-1); 
+	bool zneg_bound = (z == WORLD_MIN);
+	bool zpos_bound = (z == WORLD_MAX-1); 
 	bool yneg_bound = false; // not filling in y gaps
 	bool ypos_bound = false;
 	
