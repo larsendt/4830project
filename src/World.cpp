@@ -33,7 +33,7 @@ Chunk* World::getChunkAt(int x, int y, int z){
 		return NULL;
 	
 	}
-	Chunk * c = new Chunk(x,y,z, &m_gen);
+	Chunk * c = new Chunk(x,y,z, &m_gen, m_seed);
 	chunks[cur_size] = c;
 	cur_size ++;
 	return c;

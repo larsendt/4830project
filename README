@@ -9,7 +9,12 @@ Controls:
 To run / make:
 	qmake 4830project.git;
 	make;
-	./4830project
+	./4830project [optional seed]
+	
+Good seeds:
+	138484770
+	1766640744
+	2048
 	
 	- NOTE - 
 	We do use the freetype-3 development libraries, but you should be able to run the executable right off the bat.

@@ -5,13 +5,12 @@
 #include <unistd.h>
 
 MapGen::MapGen(){
-	srand(time(NULL));
-	seed = rand();
+
 }
 
 MapGen::~MapGen(){}
 
-VoxelCube MapGen::genChunk(int x, int y, int z){
+VoxelCube MapGen::genChunk(int x, int y, int z, int seed){
 	CaveNoise cn;
 	HeightNoise hn;
 	

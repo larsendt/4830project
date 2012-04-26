@@ -16,9 +16,6 @@ class MapGen{
 		MapGen();
 		~MapGen();
 		unsigned int shader;
-		VoxelCube genChunk(int x, int y, int z);
-		
-	private:
-		int seed;
+		VoxelCube genChunk(int x, int y, int z, int seed);
 };
 

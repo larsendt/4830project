@@ -4,6 +4,9 @@
 
 #include "IEngine.h"
 
+#include <unistd.h>
+#include <time.h>
+
 IEngine::IEngine(int argc, char** argv)
 {
 	printf("Initializing IEngine\n");
@@ -13,6 +16,17 @@ IEngine::IEngine(int argc, char** argv)
 	frames = 0;
 	m_updateRate = 0.01;
 	
+	if(argc == 2)
+	{
+		m_seed = atoi(argv[1]);
+	}
+	else
+	{
+		srand(time(NULL));
+		m_seed = rand();
+	}
+	
+	printf("Using seed: %d\n", m_seed);
 	// TEST STUFF
 	
 	water = new Water();
@@ -46,6 +60,7 @@ IEngine::IEngine(int argc, char** argv)
 	sh->setUniform1i((char*)"tex2", 3);
 	
 	w.m_gen.shader = sh->getID();
+	w.setSeed(m_seed);
 	m_wireframe = false;
 	
 	pitch = 0;
@@ -270,15 +285,15 @@ void IEngine::drawScene()
 
 void IEngine::update()
 {
-	time += m_clock->GetElapsedTime();
+	m_time += m_clock->GetElapsedTime();
 	float multiplier = 1.0;
 	frames ++;
 	while(m_clock->GetElapsedTime() < m_updateRate)
     	continue;
     	
-   	if(time > m_updateRate)
+   	if(m_time > m_updateRate)
 	{
-		multiplier = time / m_updateRate;
+		multiplier = m_time / m_updateRate;
 	}
 	
 	c_pos = c_pos + c_speed;

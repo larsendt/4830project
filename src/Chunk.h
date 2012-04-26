@@ -9,7 +9,7 @@ class Chunk{
 	public:
 		Chunk();
 		~Chunk();
-		Chunk(int nx, int ny, int nz, MapGen* gen);
+		Chunk(int nx, int ny, int nz, MapGen* gen, int seed);
 		
 		void draw();
 		
@@ -19,5 +19,6 @@ class Chunk{
 	private:
 		MapGen* gen;
 		MeshObject * m;
+		int m_seed;
 		void make();
 };

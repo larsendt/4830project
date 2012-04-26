@@ -33,15 +33,16 @@ class IEngine
 		int begin();
 		float heightFunction(float i, float j);
 	private:
-		double m_time;
 		sf::Window* m_window;
 		sf::Clock* m_clock;
 		int frames;
-		float time;
+		float m_time;
 		float m_updateRate;
 		float m_width;
 		
 		bool m_wireframe;
+		
+		int m_seed;
 		
 		World w;
 		
