@@ -181,17 +181,6 @@ void IEngine::drawScene()
 {
 	
 	
-	/*water->bindReflection();
-	
-	vec3 ref_pos = water->getReflectionPosition(c_pos, ref_pitch);
-	glPushMatrix();
-	glRotatef(-ref_pitch, 1,0,0);
-	glRotatef(-yaw, 0,1,0);
-	glTranslatef(-ref_pos.x, -ref_pos.y, -ref_pos.z);
-	w.drawAt(0,0,0);
-	glPopMatrix();
-	water->unbindReflection();*/
-	
 	//p.startDraw();
 	
 	if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -203,7 +192,6 @@ void IEngine::drawScene()
 	int drawx, drawz;
 	drawx = (int) (c_pos.x / CHUNK_SIZE);
 	drawz = (int) (c_pos.z / CHUNK_SIZE);
-	printf("%i %i\n", drawx, drawz);
 	
 	//////////////////////////////////////
 	/// Draw the inverted terrain
@@ -211,18 +199,19 @@ void IEngine::drawScene()
 	
 	if(c_pos.y > 0.0){
 	
-	glPushMatrix();
-	glLoadIdentity();
+		glPushMatrix();
+		glLoadIdentity();
 	
-	glRotatef(-pitch, 1,0,0);
-	glRotatef(-yaw, 0,1,0);
-	glTranslatef(-c_pos.x, -c_pos.y, -c_pos.z);
-	//water->protectDepthBuffer();
-	//water->stencilBuffer(c_pos, pitch, yaw);
+		glRotatef(-pitch, 1,0,0);
+		glRotatef(-yaw, 0,1,0);
+		glTranslatef(-c_pos.x, -c_pos.y, -c_pos.z);
+		//water->protectDepthBuffer();
+		//water->stencilBuffer(c_pos, pitch, yaw);
 		
-	sh2->bind();
-	w.drawAt(drawx,0,drawz);
-	sh2->release();
+		sh2->bind();
+		sh2->setUniform1f("time", frames * .1);
+		w.drawAt(drawx,0,drawz);
+		sh2->release();
 	
 	}
 	
@@ -234,8 +223,6 @@ void IEngine::drawScene()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
-	static int a = 0;
-	a ++;
 	glBegin(GL_TRIANGLES);
 	static int inc = 20;
 	glColor4f(0.0,.05,.1,.6);
@@ -285,6 +272,7 @@ void IEngine::update()
 {
 	time += m_clock->GetElapsedTime();
 	float multiplier = 1.0;
+	frames ++;
 	while(m_clock->GetElapsedTime() < m_updateRate)
     	continue;
     	

@@ -9,6 +9,7 @@ varying vec2 xy;
 varying vec2 xz;
 varying vec2 yz;
 varying vec3 n;
+uniform float time;
 
 void main(void) {
 	xy = tex_xy;
@@ -17,5 +18,8 @@ void main(void) {
 	n = normal;
 	vec3 vert = vertex;
 	vert.y *= -1;
+	float ratio = abs(vert.y / 64.0);
+	vert.x += cos(time + vert.x) * (ratio);
+	vert.z += sin(time + vert.z) * (ratio);
 	gl_Position = gl_ModelViewProjectionMatrix * vec4(vert, 1.0);
 }
