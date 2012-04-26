@@ -50,7 +50,7 @@ IEngine::IEngine(int argc, char** argv)
 	
 	pitch = 0;
 	yaw = -90;
-	c_pos.x = -32; c_pos.y = 10; c_pos.z = 96;
+	c_pos.x = 0; c_pos.y = 32; c_pos.z = 0;
 	c_speed.x = 0; c_speed.y = 0; c_speed.z = 0;
 	
 	// END TEST
@@ -155,6 +155,10 @@ int IEngine::begin()
 				{
 					m_wireframe = false;
 				}
+				if(Event.Key.Code == sf::Key::R){
+					c_pos = vec3(0,CHUNK_SIZE,0);
+					c_speed = vec3(0,0,0);
+				}
 			}
 			else if(Event.Type == sf::Event::Resized)
 			{
@@ -196,9 +200,17 @@ void IEngine::drawScene()
 	float ref_pitch = pitch;
 	vec3 ref_pos = water->getReflectionPosition(c_pos, ref_pitch);
 	
+	int drawx, drawz;
+	drawx = (int) (c_pos.x / CHUNK_SIZE);
+	drawz = (int) (c_pos.z / CHUNK_SIZE);
+	printf("%i %i\n", drawx, drawz);
+	
 	//////////////////////////////////////
 	/// Draw the inverted terrain
 	//////////////////////////////////////
+	
+	if(c_pos.y > 0.0){
+	
 	glPushMatrix();
 	glLoadIdentity();
 	
@@ -209,8 +221,10 @@ void IEngine::drawScene()
 	//water->stencilBuffer(c_pos, pitch, yaw);
 		
 	sh2->bind();
-	w.drawAt(0,0,0);
+	w.drawAt(drawx,0,drawz);
 	sh2->release();
+	
+	}
 	
 	//////////////////////////////////////////
 	/// Draw the water polygon
@@ -220,12 +234,21 @@ void IEngine::drawScene()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
-	glColor4f(0.0, 0.05, 0.1, 0.5);
-	glBegin(GL_POLYGON);
-	glVertex3f(-1000, 0, -1000);
-	glVertex3f(1000, 0, -1000);
-	glVertex3f(1000, 0, 1000);
-	glVertex3f(-1000, 0, 1000);
+	static int a = 0;
+	a ++;
+	glBegin(GL_TRIANGLES);
+	static int inc = 20;
+	glColor4f(0.0,.05,.1,.6);
+	for(int i = -600; i < 600; i+=inc){
+		for(int j = -600; j < 600; j+=inc){
+			glVertex3f(i, 0, j);
+			glVertex3f(i+inc, 0, j);
+			glVertex3f(i+inc, 0, j+inc);
+			glVertex3f(i, 0, j);
+			glVertex3f(i, 0, j+inc);
+			glVertex3f(i+inc, 0, j+inc);
+		}
+	}
 	glEnd();
 	
 	glDisable(GL_BLEND);
@@ -246,7 +269,7 @@ void IEngine::drawScene()
 	glTranslatef(-c_pos.x, -c_pos.y, -c_pos.z);
 
 	glUseProgram(sh->getID());
-	w.drawAt(0,0,0);
+	w.drawAt(drawx,0,drawz);
 
 	glPopMatrix();
 	
@@ -295,7 +318,7 @@ void IEngine::resize(int width, int height)
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0,m_width,1,1000);
+	gluPerspective(45.0,m_width,1,500);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
