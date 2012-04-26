@@ -41,9 +41,9 @@ Chunk* World::getChunkAt(int x, int y, int z){
 }
 
 void World::drawAt(int x, int y, int z){
-	for (int ix = -3; ix < 4; ix++){
+	for (int ix = 0; ix < 1; ix++){
 		for (int iy = 0; iy < 1; iy++){
-			for (int iz = -3; iz < 4; iz++){
+			for (int iz = 0; iz < 1; iz++){
 				//printf("%i %i %i\n",ix,iy,iz);
 				Chunk * c = getChunkAt(ix, iy, iz);
 				//printf("Chunk done got\n");

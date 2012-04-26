@@ -18,7 +18,7 @@ void main(void) {
 	n = normal;
 	vec3 vert = vertex;
 	vert.y *= -1;
-	float ratio = abs(vert.y / 64.0);
+	float ratio = abs(vert.y / 256.0);
 	vert.x += cos(time + vert.x) * (ratio);
 	vert.z += sin(time + vert.z) * (ratio);
 	gl_Position = gl_ModelViewProjectionMatrix * vec4(vert, 1.0);
