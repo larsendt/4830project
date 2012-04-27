@@ -324,7 +324,6 @@ unsigned char edgeMap[12][2] = {
 };
 
 // layout is GL_TRIANGLES
-#define PLACEHOLDER { 3,  2,  1,  0},
 #define X 255
 unsigned char indexTable[256][16] = {
     {X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X},

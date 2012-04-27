@@ -119,7 +119,7 @@ MeshObject * convertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float s
 				}
 			}
 		}
-	}
+	}			
 	
 	printf("SoftwareMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, dim*dim*dim*12, ((float)vx_count/(dim*dim*dim*12))*100);
 	

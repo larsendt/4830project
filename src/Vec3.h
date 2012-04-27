@@ -15,6 +15,7 @@ class vec3{
 		vec3 operator+(const vec3& rhs);
 		vec3 operator-(const vec3& rhs);
 		vec3 operator*(double scalar);
+		vec3 operator/(double scalar);
 		double operator*(const vec3& rhs);
 		bool operator==(const vec3& rhs);
 		

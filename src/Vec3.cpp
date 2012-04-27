@@ -70,11 +70,16 @@ double vec3::operator*(const vec3& rhs){
 }
 
 vec3 vec3::operator*(double scalar){
-
 	return vec3(scalar*x, scalar*y, scalar*z);
-	
 }
 
+vec3 vec3::operator/(double scalar){
+	return vec3(scalar/x, scalar/y, scalar/z);
+}
+
+bool vec3::operator==(const vec3& rhs){
+	return (x == rhs.x) && (y == rhs.y) && (z == rhs.z);
+}
 
 ////////////////// Non Class Functions ////////////////////
 
