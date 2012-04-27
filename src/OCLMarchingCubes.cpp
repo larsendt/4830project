@@ -1,118 +1,100 @@
 #include "OCLMarchingCubes.h"
+#include "OCLKernel.h"
 #include <stdio.h>
-#include <time.h>
-#include <math.h>
 
-OCLMarchingCubes::OCLMarchingCubes()
-{
-	m_vertices = NULL;
-	m_indices = NULL;
-	m_vertexCount = 0;
-	m_indexCount = 0;
-	m_kernel = new OCLKernel("kernels/marching_cubes.cl", "generateMesh");
-}
 
-void OCLMarchingCubes::generateMesh(unsigned char* noise, int dim, float spacing)
+MeshObject * oclConvertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float spacing, unsigned char isolevel)
 {
-	m_dim = dim;
-	m_noise = noise;
-	m_spacing = spacing;
+	OCLKernel* kernel = new OCLKernel("kernels/marching_cubes.cl", "generateMesh");
 	
-	// allocate the max, since I can't figure out how to
-	// close pack the vertices in the kernel
-	VERTEX* tmp_vertices = new VERTEX[dim*dim*dim*12];
-	GLuint* tmp_indices = new GLuint[dim*dim*dim*12];
+	int max_vxs = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 16;
+	VERTEX* vertices = new VERTEX[max_vxs];
+	unsigned char* valid = new unsigned char[max_vxs];
 	
-	if(m_vertices)
-	{
-		free(m_vertices);
-		m_vertices = NULL;
-	}
-	
-	if(m_indices)
-	{
-		free(m_indices);
-		m_indices = NULL;
-	}
-	
-	OCLArgument args[4];
+	OCLArgument args[6];
 	OCLArgument buffers[3];
 	
 	OCLArgument a;
-	a.data = m_noise;
-	a.byte_size = dim * dim * dim * sizeof(*noise);
+	a.data = voxels.data();
+	a.byte_size = voxels.count() * sizeof(unsigned char);
 	a.is_buffer = true;
 	a.buffer_type = WRITE;
 	a.buffer_index = 0;
-	args[0] = a;
+	args[0] = a;	
 	buffers[0] = a;
-	
-	a.data = tmp_vertices;
-	a.byte_size = dim * dim * dim * 12 * sizeof(*tmp_vertices);
+
+	a.data = vertices;
+	a.byte_size = max_vxs * sizeof(*vertices);
 	a.is_buffer = true;
-	a.buffer_type = READ_WRITE;
+	a.buffer_type = READ;
 	a.buffer_index = 1;
 	args[1] = a;
 	buffers[1] = a;
 	
-	a.data = tmp_indices;
-	a.byte_size = dim * dim * dim * 12 * sizeof(*tmp_indices);
+	a.data = valid;
+	a.byte_size = max_vxs * sizeof(*valid);
 	a.is_buffer = true;
-	a.buffer_type = READ_WRITE;
+	a.buffer_type = READ;
 	a.buffer_index = 2;
 	args[2] = a;
 	buffers[2] = a;
 	
-	int tmp_dim = m_dim-1;
-	a.data = &tmp_dim;
-	a.byte_size = sizeof(tmp_dim);
+	a.data = &dim;
+	a.byte_size = sizeof(dim);
 	a.is_buffer = false;
 	args[3] = a;
 	
-	if(!m_kernel->run(4, args, 3, buffers, m_dim*m_dim*m_dim, 1))
+	a.data = &spacing;
+	a.byte_size = sizeof(spacing);
+	a.is_buffer = false;
+	args[4] = a;
+	
+	a.data = &isolevel;
+	a.byte_size = sizeof(isolevel);
+	a.is_buffer = false;
+	args[5] = a;
+	
+	if(!kernel->run(6, args, 3, buffers, CHUNK_SIZE-1, CHUNK_SIZE-1))
 	{
-		fprintf(stderr, "Error: mesh generation borked!\n");
+		fprintf(stderr, "Error: marching cubes borked...\n");
 		exit(1);
 	}
 	
-	int max_vx = 32;
-	m_vertexCount = 0;
-	m_vertices = (VERTEX*) malloc(max_vx * sizeof(*m_vertices));
-	m_indices = (GLuint*) malloc(max_vx * sizeof(*m_indices));
-	for(int i = 0; i < dim*dim*dim*12; i++)
+	int newmax = 32;
+	int vx_count = 0;
+	VERTEX* scrubbed_vertices = (VERTEX*) malloc(newmax * sizeof(VERTEX));
+	GLuint* scrubbed_indices = (GLuint*) malloc(newmax * sizeof(GLuint));
+	
+	for(int i = 0; i < max_vxs; i++)
 	{
-		// if vertex was valid
-		if(tmp_indices[i] & 0x40000000)
+		// 252 is a magic number. don't touch
+		if(valid[i] == 252)
 		{
-			if(m_vertexCount >= max_vx)
-			{ 
-				max_vx *= 2;
-				m_vertices = (VERTEX*) realloc(m_vertices, max_vx * sizeof(*m_vertices));
-				m_indices = (GLuint*) realloc(m_indices, max_vx * sizeof(*m_indices));
-				
-				if(m_vertices == NULL || m_indices == NULL)
-				{
-					fprintf(stderr, "Failed to allocate memory for arrays.\n");
-					exit(1);
-				}
+			//printf("%d %.2f %.2f %.2f\n", valid[i], vertices[i].c.x, vertices[i].c.y, vertices[i].c.z);
+			if(vx_count >= newmax)
+			{
+				newmax *= 2;
+				scrubbed_vertices = (VERTEX*) realloc(scrubbed_vertices, newmax * sizeof(VERTEX));
+				scrubbed_indices = (GLuint*) realloc(scrubbed_indices, newmax * sizeof(GLuint));
 			}
-		
-			m_vertices[m_vertexCount] = tmp_vertices[i];
-			m_indices[m_vertexCount] = tmp_indices[i] & 0x3fffffff;
-			m_vertexCount += 1;
+			
+			scrubbed_vertices[vx_count] = vertices[i];
+			scrubbed_indices[vx_count] = vx_count;
+			vx_count += 1;
 		}
 	}
 	
-	delete[] tmp_vertices;
-	delete[] tmp_indices;
 	
-	for(int i = 0; i < m_vertexCount; i++)
-	{
-		printf("%d\n", m_indices[i]);
-	}
+	delete[] vertices;
+	delete[] valid;
 	
-	printf("Vertex count %d\n", m_vertexCount);
+	printf("OCLMarchingCubes: %d vertices set out of a possible %d (%.3f%% fill)\n", vx_count, dim*dim*dim*12, ((float)vx_count/(dim*dim*dim*12))*100);	
 	
+	mesh->setInterleaved(scrubbed_vertices, vx_count-1, scrubbed_indices, vx_count-1);
+	return mesh;
 }
+
+
+
 
 

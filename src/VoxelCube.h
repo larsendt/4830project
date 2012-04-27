@@ -19,7 +19,7 @@ class VoxelCube
 		void fillBoundaries(bool xneg_bound, bool xpos_bound, bool yneg_bound, bool ypos_bound, bool zneg_bound, bool zpos_bound);
 		
 		unsigned char* data() { return m_data; }
-		int max1dIndex() { return m_dim * m_dim * m_dim; }
+		int count() { return m_dim * m_dim * m_dim; }
 		int dimension() { return m_dim; }
 		
 		VoxelCube& operator-(VoxelCube other);

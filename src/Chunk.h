@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MeshObject.h"
+#include "OCLMarchingCubes.h"
 #include "Polygonize.h"
 #include "MapGen.h"
 #include "Types.h"

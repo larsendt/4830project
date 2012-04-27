@@ -18,6 +18,9 @@ Good seeds:
 	442045573
 	2056788600
 	
+For nvidia users, if you get an error code -1001:
+	sudo ln -s /usr/share/nvidia-current/nvidia.icd /etc/OpenCL/vendors/nvidia.icd
+	
 	- NOTE - 
 	We do use the freetype-3 development libraries, but you should be able to run the executable right off the bat.
 

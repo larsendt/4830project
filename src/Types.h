@@ -2,9 +2,10 @@
 
 #define meter 1
 #define kilometer 1000
-#define CHUNK_SIZE 128
+#define CHUNK_SIZE 65 
+#define OPENCL 1
 #define WORLD_MIN 0
-#define WORLD_MAX 1
+#define WORLD_MAX 2
 
 /*
 	All complex types that cross class boundaries are defined here

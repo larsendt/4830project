@@ -42,7 +42,7 @@ Chunk* World::getChunkAt(int x, int y, int z){
 
 void World::drawAt(int x, int y, int z){
 	for (int ix = WORLD_MIN; ix < WORLD_MAX; ix++){
-		for (int iy = WORLD_MIN; iy < WORLD_MAX; iy++){
+		for (int iy = 0; iy < 1; iy++){
 			for (int iz = WORLD_MIN; iz < WORLD_MAX; iz++){
 				//printf("%i %i %i\n",ix,iy,iz);
 				Chunk * c = getChunkAt(ix, iy, iz);

@@ -58,15 +58,16 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 		exit(EXIT_FAILURE);
 	}
 	
-	m_kernelSource = readFile(m_kernelPath).c_str();
-	if(!m_kernelSource)
+	m_kernelSource = readFile(m_kernelPath);
+	if(m_kernelSource == "")
 	{
 		fprintf(stderr, "Error: Failed to read kernel file %s!\n", m_kernelPath);
 		exit(EXIT_FAILURE);
 	}
 
 	// create the m_program from the source buffer
-	m_program = clCreateProgramWithSource(m_ctx, 1, &m_kernelSource, NULL, &err);
+	const char* derp = m_kernelSource.c_str();
+	m_program = clCreateProgramWithSource(m_ctx, 1, &derp, NULL, &err);
 	if(!m_program || err != CL_SUCCESS)
 	{
 		fprintf(stderr, "Error: Failed to create program!\n");
@@ -78,6 +79,7 @@ OCLKernel::OCLKernel(const char* kernel_path, const char* kernel_name, int devic
 	err = clBuildProgram(m_program, 0, NULL, NULL, NULL, NULL);
 	if(err != CL_SUCCESS)
 	{
+		printf("%s\n", m_kernelSource.c_str());
 		fprintf(stderr, "Error: Failed to compile program %s\n", m_kernelPath);
 		print_cl_err(err);
 		size_t len;

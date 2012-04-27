@@ -1,35 +1,15 @@
-#ifndef OCL_MARCHING_CUBES_H
-#define OCL_MARCHING_CUBES_H
+#pragma once
 
-#include <GL/gl.h>
-
-#include "OCLKernel.h"
+#include "MeshObject.h"
 #include "Types.h"
+#include "VoxelCube.h"
+#include "Vec3.h"
+#include <math.h>
 
-class OCLMarchingCubes
-{
-	public:
-		OCLMarchingCubes();
-		
-		void generateMesh(unsigned char* noise, int dim, float spacing);
-		
-		VERTEX* vertices() { return m_vertices; }
-		int vertexCount() { return m_vertexCount; }
-		GLuint* indices() { return m_indices; }
-		int indexCount() { return m_indexCount; }
-		
-	private:
-		void analyze();
-		void generate();
-	
-		OCLKernel* m_kernel;
-		VERTEX* m_vertices;
-		GLuint* m_indices;
-		int m_vertexCount;
-		int m_indexCount;
-		int m_dim;
-		float m_spacing;
-		unsigned char* m_noise;
-};
+MeshObject * oclConvertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float spacing = 1.0, unsigned char isolevel = 128);
 
-#endif
+COORD3D vInterpolation(unsigned int isolevel,
+								 COORD3D p1,
+								 COORD3D p2,
+								 unsigned char v1,
+								 unsigned char v2);

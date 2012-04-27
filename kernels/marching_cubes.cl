@@ -1,7 +1,3 @@
-//----------------------------------------
-//  Begin Marching Cubes Lookup Tables
-//----------------------------------------
-
 __constant float vertexTable[12][3] = {
 	{0.5, 0.0, 0.0}, // edge between 0 and 1 - 1
 	{1.0, 0.0, 0.5}, // edge between 1 and 2 - 2
@@ -17,22 +13,6 @@ __constant float vertexTable[12][3] = {
 	{0.0, 0.5, 1.0}  // edge between 3 and 7 - 12
 };
 
-__constant uchar edgeMap[12][2] = {
-	{0, 1},
-	{1, 2},
-	{2, 3},
-	{3, 0},
-	{4, 5},
-	{5, 6}, 
-	{6, 7},
-	{7, 4}, 
-	{0, 4},
-	{1, 5},
-	{2, 6},
-	{3, 7}
-};
-
-// layout is GL_TRIANGLES
 __constant uchar indexTable[256][16] = {
     {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255},
 	{0, 8, 3, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255},
@@ -49,7 +29,7 @@ __constant uchar indexTable[256][16] = {
 	{3, 10, 1, 11, 10, 3, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255},
 	{0, 10, 1, 0, 8, 10, 8, 11, 10, 255, 255, 255, 255, 255, 255, 255},
 	{3, 9, 0, 3, 11, 9, 11, 10, 9, 255, 255, 255, 255, 255, 255, 255},
-	{9, 8, 10, 10, 11, 8, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255},
+	{9, 8, 10, 8, 11, 10, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255}, 
 	{4, 7, 8, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255},
 	{4, 3, 0, 7, 3, 4, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255},
 	{0, 1, 9, 8, 4, 7, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255},
@@ -552,71 +532,154 @@ __constant uchar indexCountTable[256] = {
     0,
 };
 
-//------------------------------
-//      End Lookup Tables
-//------------------------------
 
-__constant uchar cube_offsets[8][3] = {
-	{0, 0, 0},
-	{1, 0, 0},
-	{1, 0, 1},
-	{0, 0, 1},
-	{0, 1, 0},
-	{1, 1, 0},
-	{1, 1, 1},
-	{0, 1, 1}
-};
-
-int get1dID(int x, int y, int z, int dim)
+inline int index1d(int x, int y, int z, int dim)
 {
-	return z + (dim*x) + (dim*dim*y);
+	int id = (x*dim*dim) + (y*dim) + z;
+	
+	if(id > dim*dim*dim)
+		id = 0;
+		
+	return id;
 }
 
-// since the index array will never count high enough to fill the MSB, we'll use the MSB to indicate 
-// whether or not that vertex is 
-__kernel void generateMesh(__global uchar* noise, __global float* vertices, __global uint* indices, int dim)
+inline void decompose1dIndex(int index, int* x, int* y, int* z, int dim)
 {
-	int id = get_global_id(0);
-	int x = id/(dim*dim);
-	int y = (id%(dim*dim))/dim;
-	int z = (id%(dim*dim))%dim;
-	int isolevel = 128;
-	
-	int cubeindex = 0;
-	for(int i = 0; i < 8; i++)
-	{
-		int dx = x + cube_offsets[i][0];
-		int dy = y + cube_offsets[i][1];
-		int dz = z + cube_offsets[i][2];
+	*x = index/(dim*dim);
+	*y = (index - (*x*dim*dim)) / dim;
+	*z = index - (*x*dim*dim) - (*y*dim);
+}
+
+inline int vertID(int voxelID)
+{
+	return voxelID * 16 * 16;
+}
+
+inline int validID(int voxelID)
+{
+	return voxelID * 16;
+}
+
+
+// vertex_data layout: x y z nx ny nz xys xyt xzs xzt yzs yzt byte byte byte byte
+// the starting vertex is: x = global_id(0), y = global_id(1), then loop through z
+// the index of the first vertex for a particular voxel is (voxel_1d_index * 12 * 16)
+// the size of vertex_data is (num_voxels) * 16 * 16
+// the size of valids is (num_voxels) * 16;
+__kernel void generateMesh(__global uchar* voxel_data, __global float* vertex_data, __global uchar* valid, int dim, float spacing, uchar isolevel) {
+	int x = get_global_id(0);
+	int y = get_global_id(1);
+
+	for(int z = 0; z < dim-1; z++)
+	{	
+		uchar cubeindex = 0;
 		
-		if(get1dID(dx, dy, dz, dim+1) >= pow(dim+1, 3.0))
+		int i = index1d(x, y, z, dim);
+		if(voxel_data[i] < isolevel) cubeindex |= 1;	
+		
+		i = index1d(x+1, y, z, dim);	
+		if(voxel_data[i] < isolevel) cubeindex |= 2;	
+		
+		i = index1d(x+1, y, z+1, dim);	
+		if(voxel_data[i] < isolevel) cubeindex |= 4;	
+		
+		i = index1d(x, y, z+1, dim);	
+		if(voxel_data[i] < isolevel) cubeindex |= 8;	
+		
+		i = index1d(x, y+1, z, dim);	
+		if(voxel_data[i] < isolevel) cubeindex |= 16;	
+		
+		i = index1d(x+1, y+1, z, dim);	
+		if(voxel_data[i] < isolevel) cubeindex |= 32;	
+		
+		i = index1d(x+1, y+1, z+1, dim);	
+		if(voxel_data[i] < isolevel) cubeindex |= 64;	
+		
+		i = index1d(x, y+1, z+1, dim);	
+		if(voxel_data[i] < isolevel) cubeindex |= 128;	
+		
+		int idcount = indexCountTable[cubeindex];
+		__constant uchar* indices = indexTable[cubeindex];
+		
+		for(int j = 0; j < idcount; j++)
 		{
-			cubeindex = get1dID(dx, dy, dz, dim+1);
-			break;
+			float4 vertex;
+			vertex.x = (x*spacing) + (vertexTable[indices[j]][0]*spacing);
+			vertex.y = (y*spacing) + (vertexTable[indices[j]][1]*spacing);
+			vertex.z = (z*spacing) + (vertexTable[indices[j]][2]*spacing);
+
+			float2 xy;
+			xy.x = vertex.x/dim;
+			xy.y = vertex.y/dim;
+			
+			float2 xz;
+			xz.x = vertex.x/dim;
+			xz.y = vertex.z/dim;
+			
+			float2 yz;
+			yz.x = vertex.y/dim;
+			yz.y = vertex.z/dim;
+			
+			int vi = vertID(index1d(x, y, z, dim)) + (j*16);
+			vertex_data[vi] = vertex.x;
+			vertex_data[vi+1] = vertex.y;
+			vertex_data[vi+2] = vertex.z;
+			
+			// normals will be calulated later
+			vertex_data[vi+3] = 1; 
+			vertex_data[vi+4] = 1;
+			vertex_data[vi+5] = 1; 
+			
+			// texcoords
+			vertex_data[vi+6] = xy.x;
+			vertex_data[vi+7] = xy.y;
+			vertex_data[vi+8] = xz.x;
+			vertex_data[vi+9] = xz.y;
+			vertex_data[vi+10] = yz.x;
+			vertex_data[vi+11] = yz.y;
+			
+			int valI = validID(index1d(x, y, z, dim));
+			valid[valI+j] = 252;
 		}
 		
-		if(noise[get1dID(dx, dy, dz, dim+1)] > isolevel)
-			cubeindex = 0;// |= (int)pow(2.0, i);
-	}
-	
-	//for(int i = 0; i < 12; i++)
-	//{
-	//	indices[i+id] = id;
-	//	indices[i+id] |= 0x40000000;
-	//}
+		for (int j = 0; j < idcount; j+=3){
+			float4 va, vb, vc;
+			
+			int vi0 = vertID(index1d(x, y, z, dim)) + (j*16);
+			int vi1 = vertID(index1d(x, y, z, dim)) + ((j+1)*16);
+			int vi2 = vertID(index1d(x, y, z, dim)) + ((j+2)*16);
+			
+			vb.x = vertex_data[vi0];
+			vb.y = vertex_data[vi0+1];
+			vb.z = vertex_data[vi0+2];
+			
+			va.x = vertex_data[vi1];
+			va.y = vertex_data[vi1+1];
+			va.z = vertex_data[vi1+2];
+			
+			vc.x = vertex_data[vi2];
+			vc.y = vertex_data[vi2+1];
+			vc.z = vertex_data[vi2+2];
+			
+			float4 norm = cross(vb - va, vc - va);
+						
+			vertex_data[vi0+3] = norm.x;
+			vertex_data[vi0+4] = norm.y;
+			vertex_data[vi0+5] = norm.z;
+						
+			vertex_data[vi1+3] = norm.x;
+			vertex_data[vi1+4] = norm.y;
+			vertex_data[vi1+5] = norm.z;
+			
+			vertex_data[vi2+3] = norm.x;
+			vertex_data[vi2+4] = norm.y;
+			vertex_data[vi2+5] = norm.z;
+		}
 
-	indices[id] = id;
-	indices[id] |= 0x40000000;
+		for(int j = idcount; j < 16; j++)
+		{
+			int valI = validID(index1d(x, y, z, dim));
+			valid[valI+j] = 0;
+		}
+	}	
 }
-
-
-
-
-
-
-
-
-
-
-
-

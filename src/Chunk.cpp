@@ -24,7 +24,12 @@ void Chunk::make(){
 	VoxelCube noise_data = gen->genChunk(x,y,z, m_seed);
 	m = new MeshObject();
 	m->setShader(gen->shader);
-	convertToMesh(m, noise_data, CHUNK_SIZE, 1.0, 192);
+	
+	// opencl is defined in types.h
+	if(OPENCL)
+		oclConvertToMesh(m, noise_data, CHUNK_SIZE, 1.0, 192);
+	else
+		convertToMesh(m, noise_data, CHUNK_SIZE, 1.0, 192);
 }
 
 void Chunk::draw(){
