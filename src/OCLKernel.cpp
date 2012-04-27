@@ -184,7 +184,7 @@ bool OCLKernel::run(int arg_count, OCLArgument* args,
 			return false;
 		}
 	}
-
+	
 	size_t global[2] = {global_width, global_height};
 	size_t local[2];
 	

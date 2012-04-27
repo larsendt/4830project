@@ -35,7 +35,6 @@ MeshObject * convertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float s
 			for(int z = 0; z < dim-1; z++)
 			{
 				unsigned char noisevals[8];
-				unsigned int indices1d[8];
 				unsigned int cubeindex = 0;
 				
 				for(int i = 0; i < 8; i++)
@@ -80,13 +79,6 @@ MeshObject * convertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float s
 						yz.s = (float)c.y/(float)dim;
 						yz.t = (float)c.z/(float)dim;
 						
-						COLOR color;
-						
-						color.r = c.x;
-						color.g = c.y;
-						color.b = c.z;
-						color.a = 1.0;
-				
 						// allocate more memory if necessary
 						if(vx_count == max_vxs)
 						{
@@ -104,95 +96,25 @@ MeshObject * convertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, float s
 						vx_count ++;
 					}
 					
-					for (int i = 0; i< idcount; i++){
-						// n is a placeholder normal indicating the approximate direction the normal should point.
-						// The vertex table does not define triangles in a consistent way, so the vector
-						// cross product doesn't quite work. This normal should be pointing out of the terrain, 
-						// where out is defined as voxels >= 128. If the dot product of this vector and the
-						// normal obtained from the cross product is greater than zero, then the cross
-						// product is correct. Otherwise, the normal obtained from the cross product should
-						// be reversed
+					for (int i = 0; i < idcount; i+=3){
 						COORD3D n;
 					
 						vec3 va, vb, vc;
-				
-						switch (i%3){
-							case 0:
-								va = vec3(cachedCoords[i].x, 
-										cachedCoords[i].y, 
-										cachedCoords[i].z);
-								vb = vec3(cachedCoords[i+1].x, 
-										cachedCoords[i+1].y, 
-										cachedCoords[i+1].z);
-								vc = vec3(cachedCoords[i+2].x, 
-										cachedCoords[i+2].y, 
-										cachedCoords[i+2].z);
-								break;
-							case 1:
-								va = vec3(cachedCoords[i-1].x, 
-										cachedCoords[i-1].y, 
-										cachedCoords[i-1].z);
-								vb = vec3(cachedCoords[i].x, 
-										cachedCoords[i].y, 
-										cachedCoords[i].z);
-								vc = vec3(cachedCoords[i+1].x, 
-										cachedCoords[i+1].y, 
-										cachedCoords[i+1].z);
-								break;
-							case 2:
-								va = vec3(cachedCoords[i-2].x, 
-										cachedCoords[i-2].y, 
-										cachedCoords[i-2].z);
-								vb = vec3(cachedCoords[i-1].x, 
-										cachedCoords[i-1].y, 
-										cachedCoords[i-1].z);
-								vc = vec3(cachedCoords[i].x, 
-										cachedCoords[i].y, 
-										cachedCoords[i].z);
-								break;
-						}
 						
-						vec3 apn; // approximate normal
+						vb = vec3(cachedCoords[i].x, cachedCoords[i].y, cachedCoords[i].z);
+						va = vec3(cachedCoords[i+1].x, cachedCoords[i+1].y, cachedCoords[i+1].z);
+						vc = vec3(cachedCoords[i+2].x, cachedCoords[i+2].y, cachedCoords[i+2].z);
 						
-						int normid = normalIndexTable[cubeindex];
-						if(normid < 255)
-						{
-							apn.x = normalTable[normid][0];
-							apn.y = normalTable[normid][1];
-							apn.z = normalTable[normid][2];
-						}
-						else
-						{
-							apn.x = 0;
-							apn.y = 1;
-							apn.z = 0;
-						}
+						vec3 norm = cross(vb - va, vc - va);
+						norm.normalize();
+						n.x = norm.x;
+						n.y = norm.y;
+						n.z = norm.z;
 						
-						vec3 u, v, w;
-						
-						u = vc-vb;
-						v = vc-va;
-						
-						w = cross(u,v);
-						
-						w = w.normalize();
-						
-						if (w * apn <=  0){
-							w = w*(-1);
-						}
-						
-						/*printf("a: %f %f %f\n", va.x, va.y, va.z);
-						printf("b: %f %f %f\n", vb.x, vb.y, vb.z);
-						printf("c: %f %f %f\n", vc.x, vc.y, vc.z);
-						printf("-----------------------------\n");
-						printf("u: %f %f %f\n", u.x, u.y, u.z);
-						printf("v: %f %f %f\n", v.x, v.y, v.z);
-						printf("normal: %f %f %f\n", w.x,w.y,w.z);*/
-						
-						n.x = w.x; n.y = w.y; n.z = w.z;
 						vertices[tmpcount].n = n;
-						tmpcount++;
-						//getchar();
+						vertices[tmpcount+1].n = n;
+						vertices[tmpcount+2].n = n;
+						tmpcount += 3;
 					}
 				}
 			}
