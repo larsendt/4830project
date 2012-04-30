@@ -67,10 +67,16 @@ MeshObject * oclConvertToMesh(MeshObject * mesh, VoxelCube voxels, int dim, floa
 	
 	for(int i = 0; i < max_vxs; i++)
 	{
-		// 252 is a magic number. don't touch
-		if(valid[i] == 252)
+		// 255 is a magic number. don't touch
+		if(valid[i] == 255)
 		{
 			//printf("%d %.2f %.2f %.2f\n", valid[i], vertices[i].c.x, vertices[i].c.y, vertices[i].c.z);
+
+			//if((vx_count+1) % 3 == 0)
+			//{
+			//	printf("================\n");
+			//}
+
 			if(vx_count >= newmax)
 			{
 				newmax *= 2;

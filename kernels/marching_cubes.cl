@@ -639,7 +639,7 @@ __kernel void generateMesh(__global uchar* voxel_data, __global float* vertex_da
 			vertex_data[vi+11] = yz.y;
 			
 			int valI = validID(index1d(x, y, z, dim));
-			valid[valI+j] = 252;
+			valid[valI+j] = 255;
 		}
 		
 		for (int j = 0; j < idcount; j+=3){
