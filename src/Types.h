@@ -1,5 +1,8 @@
 #pragma once
 
+// change this to 1 to use the OpenCL implementation
+#define OPENCL 0
+
 #define meter 1
 #define kilometer 1000
 #define CHUNK_SIZE 128
