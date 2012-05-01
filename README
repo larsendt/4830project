@@ -1,40 +1,42 @@
-4830 Final Project - Project Review
-Dane Larsen and Theodore Hoff
+4830 Project Readme - Dane Larsen and Theodore Hoff
+
+How to run:
+	./4830project [optional seed (int)]
+
+	We are of the opinion that the default seed is pretty awesome, so you might want to check that out before experimenting.
 
 Controls:
-	up arrow - speeds up in view direction
-	down arrow - slows down in view direction
-	w/a/s/d - look around
-	
-To run / make:
-	qmake 4830project.git;
-	make;
-	./4830project [optional seed]
-	
-Good seeds:
-	138484770
-	1766640744
-	2048
-	442045573
-	2056788600
-	
-For nvidia users, if you get an error code -1001:
-	sudo ln -s /usr/share/nvidia-current/nvidia.icd /etc/OpenCL/vendors/nvidia.icd
-	
-	- NOTE - 
-	We do use the freetype-3 development libraries, but you should be able to run the executable right off the bat.
+	A/D - pan
+	W/S - tilt
+	Up Arrow - forward (speed)
+	Down Arrow - backward (speed)
 
-Things to look at:
+	Note on actual movement: if you want to stop moving, it’s faster to cease all input rather than to back up.
+
+Things To Look At (Since the project presentation last week anyways):	
+	Reflection/ripples in the water
+Skysphere! ( the lighting actually comes from the sun in the sky texture)
+	Triplanar shading - finally working (there was a bug in the interleaved data causing the texture coordinates to get flipped around), + there’s a new texture for normals that point in the negative y.
 	
-	Voxel creation - 
-		In order to create terrain that seems natural, we combine two methods: First, we create a "voxel cube" out of a heightmap heightmap that fills in all voxels below the generated height. Second, we create another voxel cube out of an OpenCL 3D noise generation. The heightmap has the 3d noise subtracted from it, appearing to create natural caves and valleys.
-	
-	Marching cubes - 
-		The voxel cube from the previous step is then passed into our software Marching Cubes implemenetation. It's slow, but it works! The normals are created through the dot product of the cross product of each triangle with the known normals for each possible face. If the dot product is negative, the normal is negative of the cross product.
-		
-	Triplanar texturing - 
-		It's still a work in progress. I think that the approach that we were using is a bit flawed, and the non-Garaud normals don't really help.
-		
-	"Water Reflection" - 
-		It's an early attempt at emulating the reflectiveness of water. Obviously the reflections aren't right, it was just an early attempt at the actual implementation behind it - a render of a framebuffer displayed on a texture. 
-		
+Things To Look At In General:
+	The cool meshes we made out of voxels!
+	Normals that are correct!
+
+Things That You Can’t See, But Are Still There:
+	A mostly-working openCL implementation of Marching cubes (set OPENCL to 0 in the src/Types.h file, then recompile and run - this didn’t work on the ATI laptop =( )
+
+Things We Would Have Done With More Time / Planning:
+	The hardest (but most valuable) thing we could have done with more time is to fundamentally alter our current mesh object. The Marching Cubes tutorials on the internet that we’ve seen don’t really address the issue of redundant vertices and thus actually connected meshes. Several early attempts at this made the application’s mesh creation 50x slower, and summarily discarded.
+	However, with connected meshes in a halfedge or quad-edge format, we can actually complete such operations as Gouraud (or Phong) normal model, or (unrealistic, given the time we had) even apply mesh simplification algorithms.
+	Shadows & Ambient Occlusion
+
+
+
+How We Did It:
+	Marching cubes: http://http.developer.nvidia.com/GPUGems3/gpugems3_ch01.html
+Currently, it’s in C++ only. There was going to be an OpenCL implementation, but it has major problems, so it’s turned off
+Terrain is internally generated as voxels using 2d and 3d Perlin noise, and then tastefully combined
+
+	…. and we covered a lot of stuff in the project presentation, so just shoot us an email if you need more information.
+
+Enjoy, and thanks for a great semester!
