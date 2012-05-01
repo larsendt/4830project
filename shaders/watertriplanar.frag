@@ -22,7 +22,7 @@ void main(){
 
 	vec4 t1 = texture2D(tex, xfacing * 5.0);
 	vec4 t2;
-	if (n.y < 0) t2 = texture2D(tex3, yfacing * 2.0);
+	if (n.y < 0.0) t2 = texture2D(tex3, yfacing * 2.0);
 	else t2 = texture2D(tex2, yfacing * 10.0);
 	vec4 t3 = texture2D(tex, zfacing * 5.0);
 	
