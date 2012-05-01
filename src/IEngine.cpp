@@ -68,6 +68,8 @@ IEngine::IEngine(int argc, char** argv)
 	c_pos.x = 0; c_pos.y = 32; c_pos.z = 0;
 	c_speed.x = 0; c_speed.y = 0; c_speed.z = 0;
 	
+	skybox = new Skybox();
+	
 	// END TEST
 }
 
@@ -195,11 +197,28 @@ int IEngine::begin()
 void IEngine::drawScene()
 {
 	
-	
 	//p.startDraw();
 	
 	if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	glPushMatrix();
+	
+	glActiveTexture(GL_TEXTURE2);
+	bindImage(0);
+
+	glActiveTexture(GL_TEXTURE3);
+	bindImage(0);
+
+	glTranslatef(0, -c_pos.y, 0);
+
+	//glTranslatef(0, -25, 0);	
+	glRotatef(-pitch, 1,0,0);
+	glRotatef(-yaw, 0,1,0);
+	skybox->draw();
+	
+	glPopMatrix();
+
 	
 	float ref_pitch = pitch;
 	vec3 ref_pos = water->getReflectionPosition(c_pos, ref_pitch);
@@ -224,6 +243,16 @@ void IEngine::drawScene()
 		//water->stencilBuffer(c_pos, pitch, yaw);
 		
 		sh2->bind();
+		
+		glActiveTexture(GL_TEXTURE2);
+		bindImage(tex);
+	
+		glActiveTexture(GL_TEXTURE3);
+		bindImage(tex2);
+	
+		sh2->setUniform1i((char*)"tex", 2);
+		sh2->setUniform1i((char*)"tex2", 3);
+		
 		sh2->setUniform1f("time", frames * .1);
 		w.drawAt(drawx,0,drawz);
 		sh2->release();
@@ -241,8 +270,8 @@ void IEngine::drawScene()
 	glBegin(GL_TRIANGLES);
 	static int inc = 20;
 	glColor4f(0.0,.05,.1,.6);
-	for(int i = -600; i < 600; i+=inc){
-		for(int j = -600; j < 600; j+=inc){
+	for(int i = -1000; i < 1000; i+=inc){
+		for(int j = -1000; j < 1000; j+=inc){
 			glVertex3f(i, 0, j);
 			glVertex3f(i+inc, 0, j);
 			glVertex3f(i+inc, 0, j+inc);
@@ -270,11 +299,22 @@ void IEngine::drawScene()
 
 	glTranslatef(-c_pos.x, -c_pos.y, -c_pos.z);
 
-	glUseProgram(sh->getID());
-	w.drawAt(drawx,0,drawz);
-
-	glPopMatrix();
+	sh->bind();
 	
+	glActiveTexture(GL_TEXTURE2);
+	bindImage(tex);
+	
+	glActiveTexture(GL_TEXTURE3);
+	bindImage(tex2);
+	
+	sh->setUniform1i((char*)"tex", 2);
+	sh->setUniform1i((char*)"tex2", 3);
+	
+	w.drawAt(drawx,0,drawz);
+	glPopMatrix();
+
+	sh->release();
+
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
 	//p.draw();

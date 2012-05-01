@@ -16,6 +16,7 @@
 #include "PostProcess.h"
 #include "Vec3.h"
 #include "Water.h"
+#include "Skybox.h"
 
 #define PI 3.1415
 #define mradians(i) (i/180.0 * PI)
@@ -45,6 +46,7 @@ class IEngine
 		int m_seed;
 		
 		World w;
+		Skybox* skybox;
 		
 		PostProcess p;
 		Shader * sh;

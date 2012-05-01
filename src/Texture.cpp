@@ -21,7 +21,7 @@ GLuint Texture::loadTexture(std::string img_path)
     sf::Image* img = new sf::Image();
     if(!img->LoadFromFile(img_path))
     {
-        printf("Failed to load texture: %s Using default color #ff00ff\n", img_path.c_str());
+        fprintf(stderr, "Failed to load texture: %s Using default color #ff00ff\n", img_path.c_str());
 		img->Create(50, 50, sf::Color::Magenta);	
     }
     
