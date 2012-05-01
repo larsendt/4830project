@@ -9,6 +9,7 @@ varying vec2 xy;
 varying vec2 xz;
 varying vec2 yz;
 varying vec3 n;
+varying vec3 v;
 uniform float time;
 
 void main(void) {
@@ -16,6 +17,7 @@ void main(void) {
 	xz = tex_xz;
 	yz = tex_yz;
 	n = normal;
+	v = vertex;
 	vec3 vert = vertex;
 	vert.y *= -1.0;
 	float ratio = abs(vert.y / 128.0);

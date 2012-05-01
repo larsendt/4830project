@@ -61,6 +61,5 @@ class IEngine
 		vec3 c_pos;
 		vec3 c_speed;
 		
-		GLuint tex;
-		GLuint tex2;
+		GLuint tex, tex2, tex3;
 };

@@ -8,6 +8,7 @@ attribute vec2 tex_yz;
 varying vec2 xy;
 varying vec2 xz;
 varying vec2 yz;
+varying vec3 v;
 varying vec3 n;
 
 void main(void) {
@@ -15,5 +16,6 @@ void main(void) {
 	xz = tex_xz;
 	yz = tex_yz;
 	n = normal;
+	v = vertex;
 	gl_Position = gl_ModelViewProjectionMatrix * vec4(vertex, 1.0);
 }

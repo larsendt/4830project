@@ -40,6 +40,7 @@ IEngine::IEngine(int argc, char** argv)
 	p.setShader(fbo_shader);
 	p.init(m_window->GetWidth(), m_window->GetHeight());
 	
+	tex3 = loadImage((char*)"tex/rock.jpg");
 	tex2 = loadImage((char*)"tex/grass.png");
 	tex = loadImage((char*)"tex/sand.jpg");
 	sh2 = new Shader((char *) "shaders/watertriplanar.vert", (char*)"shaders/watertriplanar.frag");
@@ -56,8 +57,14 @@ IEngine::IEngine(int argc, char** argv)
 	glActiveTexture(GL_TEXTURE3);
 	bindImage(tex2);
 	
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE4);
+	bindImage(tex3);
+	
 	sh->setUniform1i((char*)"tex", 2);
 	sh->setUniform1i((char*)"tex2", 3);
+	sh->setUniform1i((char*)"tex3", 4);
+	
 	
 	w.m_gen.shader = sh->getID();
 	w.setSeed(m_seed);
@@ -209,6 +216,9 @@ void IEngine::drawScene()
 
 	glActiveTexture(GL_TEXTURE3);
 	bindImage(0);
+	
+	glActiveTexture(GL_TEXTURE4);
+	bindImage(0);
 
 	glTranslatef(0, -c_pos.y, 0);
 
@@ -250,8 +260,12 @@ void IEngine::drawScene()
 		glActiveTexture(GL_TEXTURE3);
 		bindImage(tex2);
 	
+		glActiveTexture(GL_TEXTURE4);
+		bindImage(tex3);
+	
 		sh2->setUniform1i((char*)"tex", 2);
 		sh2->setUniform1i((char*)"tex2", 3);
+		sh2->setUniform1i((char*)"tex3", 4);
 		
 		sh2->setUniform1f("time", frames * .1);
 		w.drawAt(drawx,0,drawz);
@@ -307,8 +321,12 @@ void IEngine::drawScene()
 	glActiveTexture(GL_TEXTURE3);
 	bindImage(tex2);
 	
+	glActiveTexture(GL_TEXTURE4);
+	bindImage(tex3);
+	
 	sh->setUniform1i((char*)"tex", 2);
 	sh->setUniform1i((char*)"tex2", 3);
+	sh->setUniform1i((char*)"tex3", 4);
 	
 	w.drawAt(drawx,0,drawz);
 	glPopMatrix();
