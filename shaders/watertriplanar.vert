@@ -17,7 +17,7 @@ void main(void) {
 	yz = tex_yz;
 	n = normal;
 	vec3 vert = vertex;
-	vert.y *= -1;
+	vert.y *= -1.0;
 	float ratio = abs(vert.y / 128.0);
 	vert.x += cos(time + vert.x) * (ratio);
 	vert.z += sin(time + vert.z) * (ratio);

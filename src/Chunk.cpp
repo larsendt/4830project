@@ -17,7 +17,6 @@ Chunk::Chunk(int nx, int ny, int nz, MapGen * mgen, int seed){
 	gen = mgen;
 	m_seed = seed;
 	make();
-	printf("All made & stuff\n");
 }
 
 void Chunk::make(){

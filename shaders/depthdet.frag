@@ -23,8 +23,8 @@ void main()
 
     float edgeDepth = sqrt(H*H+V*V).r;
     edgeDepth = sqrt(edgeDepth);
-    if (edgeDepth>.08) edgeDepth = 1;
-    else edgeDepth = 0;
+    if (edgeDepth>.08) edgeDepth = 1.0;
+    else edgeDepth = 0.0;
 	vec4 color = texture2D(fbo_texture,f_texcoord);
 	
 	gl_FragColor =  color - vec4(edgeDepth);
