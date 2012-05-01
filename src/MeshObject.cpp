@@ -212,18 +212,20 @@ void MeshObject::draw(){
 	
 	//printf("norms: %s\n", gluErrorString(glGetError()));
 	
-	glEnableVertexAttribArray(att_tex_yz);
+	
+	
+	//printf("xz: %s\n", gluErrorString(glGetError()));
+	
+	glEnableVertexAttribArray(att_tex_xy);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_packages);
 	glVertexAttribPointer(
-		att_tex_yz, // attribute
+		att_tex_xy, // attribute
 		2,
 		GL_FLOAT,
 		GL_FALSE,
 		sizeof(vbo_package),		
-		BUFFER_OFFSET(24)			
+		BUFFER_OFFSET(24)		
 	);
-	
-	//printf("yz: %s\n", gluErrorString(glGetError()));
 	
 	glEnableVertexAttribArray(att_tex_xz);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_packages);
@@ -236,17 +238,15 @@ void MeshObject::draw(){
 		BUFFER_OFFSET(32)			
 	);
 	
-	//printf("xz: %s\n", gluErrorString(glGetError()));
-	
-	glEnableVertexAttribArray(att_tex_xy);
+	glEnableVertexAttribArray(att_tex_yz);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_packages);
 	glVertexAttribPointer(
-		att_tex_xy, // attribute
+		att_tex_yz, // attribute
 		2,
 		GL_FLOAT,
 		GL_FALSE,
 		sizeof(vbo_package),		
-		BUFFER_OFFSET(40)		
+		BUFFER_OFFSET(40)			
 	);
 	
 	//printf("xy: %s\n", gluErrorString(glGetError()));
