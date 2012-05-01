@@ -23,7 +23,7 @@ IEngine::IEngine(int argc, char** argv)
 	else
 	{
 		srand(time(NULL));
-		m_seed = rand();
+		m_seed = 817901691;//rand();
 	}
 	
 	printf("Using seed: %d\n", m_seed);
@@ -65,7 +65,7 @@ IEngine::IEngine(int argc, char** argv)
 	
 	pitch = 0;
 	yaw = -90;
-	c_pos.x = 0; c_pos.y = 32; c_pos.z = 0;
+	c_pos.x = 30; c_pos.y = 32; c_pos.z = 80;
 	c_speed.x = 0; c_speed.y = 0; c_speed.z = 0;
 	
 	skybox = new Skybox();
